@@ -1,0 +1,82 @@
+{
+  "name": "react-ts-vite-template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "rimraf ./dist && tsc && vite build",
+    "preview": "vite preview",
+    "lint": "npx --no -- lint-staged",
+    "prepare": "husky install",
+    "fix": "eslint src/**/*.*  --fix",
+    "lint:style": "stylelint \"src/**/*.(less|scss|css)\" --fix"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.25.0",
+    "exifr": "^7.1.3",
+    "fabric": "5.3.0",
+    "less": "^4.1.3",
+    "postcss": "^8.4.35",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.4.1",
+    "vite-plugin-eslint": "^1.8.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.2.0",
+    "@commitlint/config-conventional": "^17.2.0",
+    "@types/fabric": "^5.3.7",
+    "@types/node": "^18.11.9",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@types/react-router-config": "^5.0.6",
+    "@types/react-router-dom": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^5.39.0",
+    "@typescript-eslint/parser": "^5.39.0",
+    "@vitejs/plugin-react": "^2.1.0",
+    "commitlint": "^17.2.0",
+    "daisyui": "^4.7.2",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.31.8",
+    "husky": "^8.0.2",
+    "lint-staged": "^13.0.3",
+    "postcss-less": "^6.0.0",
+    "prettier": "^2.7.1",
+    "react-router-config": "^5.1.1",
+    "react-router-dom": "5.2.0",
+    "rimraf": "^5.0.5",
+    "stylelint": "^14.14.0",
+    "stylelint-config-css-modules": "^4.1.0",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-standard": "^29.0.0",
+    "stylelint-order": "^5.0.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.1.0"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,tsx,ts}": [
+      "eslint src --cache --fix",
+      "git add ."
+    ],
+    "**/*.*.less": [
+      "npm run lint:style",
+      "git add ."
+    ],
+    "*": [
+      "prettier --check --write",
+      "git add ."
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "echo 'git commit trigger husky pre-commit hook' ",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "volta": {
+    "node": "16.18.0"
+  }
+}
