@@ -12,3 +12,59 @@ export const loadImage = async (url: string): Promise<fabric.Image> => {
     });
   });
 };
+
+/**
+ * 将url文件下载到本地
+ * @param fileUrl {String} 文件链接
+ * @param fileName {String} 文件名字
+ * @return void
+ */
+export async function downloadFile(fileUrl: string, fileName: string) {
+  let blob = await getBlob(fileUrl);
+  saveFile(blob, fileName);
+}
+
+export function getBlob(fileUrl: string) {
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', fileUrl, true);
+    //监听进度事件
+    xhr.addEventListener(
+      'progress',
+      function (evt) {
+        if (evt.lengthComputable) {
+          let percentComplete = evt.loaded / evt.total;
+          // percentage是当前下载进度，可根据自己的需求自行处理
+          let percentage = percentComplete * 100;
+          console.log('percentage', percentage);
+        }
+      },
+      false
+    );
+    xhr.responseType = 'blob';
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        resolve(xhr.response);
+      }
+    };
+    xhr.send();
+  });
+}
+
+export function saveFile(blob: any, fileName: string) {
+  // 非ie的下载
+  const link = document.createElement('a');
+  const body = document.querySelector('body')!;
+
+  link.href = window.URL.createObjectURL(blob);
+  link.download = fileName;
+
+  // fix Firefox
+  link.style.display = 'none';
+  body.appendChild(link);
+
+  link.click();
+  body.removeChild(link);
+
+  window.URL.revokeObjectURL(link.href);
+}

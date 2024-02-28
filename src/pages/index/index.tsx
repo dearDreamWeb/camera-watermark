@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
-import { loadImage } from '@/utils';
+import { downloadFile, loadImage } from '@/utils';
 import exifr from 'exifr';
 import canonLogo from '@/assets/images/canon.png';
 import fujifilmLogo from '@/assets/images/fujifilm.png'; // 富士
@@ -54,6 +54,8 @@ const Index = () => {
   }, []);
 
   const imgChange = async () => {
+    mainCanvas.current?.clear();
+    logoCanvas.current?.clear();
     const file = fileRef.current!.files![0];
     const reader = new FileReader();
 
@@ -201,12 +203,21 @@ const Index = () => {
   };
 
   const downloadHandler = () => {
+    downloadCanvas.current?.clear();
     downloadCanvas.current!.backgroundColor! = '#fff';
-    const width = mainCanvas.current?.width!;
-    const height = mainCanvas.current?.height! + logoCanvas.current?.height!;
-    downloadCanvas.current?.setDimensions({ width, height });
     const mainCanvasObjects = mainCanvas.current?.getObjects()!;
     const logoCanvasObjects = logoCanvas.current?.getObjects()!;
+    // const logoHeight = Math.floor(
+    //   LOGOHEIGHT * (mainCanvasObjects[0].width! / MAXWIDTH)
+    // );
+    const width = mainCanvas.current?.width!;
+    const height = mainCanvas.current?.height! + logoCanvas.current?.height!;
+    // const width = mainCanvasObjects[0].width!;
+    // const height = mainCanvasObjects[0].height! + logoHeight;
+    downloadCanvas.current?.setDimensions({ width, height });
+
+    // mainCanvasObjects[0].scale(1);
+    // downloadCanvas.current?.add(mainCanvasObjects[0]);
     mainCanvasObjects.forEach((obj) => {
       downloadCanvas.current?.add(obj);
     });
@@ -215,16 +226,24 @@ const Index = () => {
       downloadCanvas.current?.add(obj);
     });
     downloadCanvas.current?.renderAll();
-
+    console.log(11111);
     const downloadImageData = downloadCanvas.current?.toDataURL({
       format: 'png',
+      // 质量
       quality: 1,
+      // 分辨率倍数
+      multiplier: Math.max(
+        Math.ceil(mainCanvasObjects[0].width! / MAXWIDTH),
+        1
+      ),
     })!;
-
-    const downloadLink = document.createElement('a');
-    downloadLink.href = downloadImageData;
-    downloadLink.download = `${imgInfo.file?.name}_${+new Date()}.png`;
-    downloadLink.click();
+    // return;
+    // const downloadLink = document.createElement('a');
+    // downloadLink.href = downloadImageData;
+    // downloadLink.download = `${imgInfo.file?.name}_${+new Date()}.png`;
+    // downloadLink.click();
+    console.log(222222);
+    downloadFile(downloadImageData, `${imgInfo.file?.name}_${+new Date()}.png`);
   };
 
   return (
