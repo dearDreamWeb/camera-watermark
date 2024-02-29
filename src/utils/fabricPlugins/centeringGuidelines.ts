@@ -7,7 +7,7 @@ import { fabric } from 'fabric';
  * (or maybe use existing fabric.util.fire/observe (if it won't be too slow))
  */
 export function initCenteringGuidelines(canvas: any) {
-  var canvasWidth = canvas.getWidth(),
+  let canvasWidth = canvas.getWidth(),
     canvasHeight = canvas.getHeight(),
     canvasWidthCenter = canvasWidth / 2,
     canvasHeightCenter = canvasHeight / 2,
@@ -20,7 +20,7 @@ export function initCenteringGuidelines(canvas: any) {
     viewportTransform: any;
 
   for (
-    var i = canvasWidthCenter - centerLineMargin,
+    let i = canvasWidthCenter - centerLineMargin,
       len = canvasWidthCenter + centerLineMargin;
     i <= len;
     i++
@@ -28,7 +28,7 @@ export function initCenteringGuidelines(canvas: any) {
     (canvasWidthCenterMap as any)[Math.round(i)] = true;
   }
   for (
-    var i = canvasHeightCenter - centerLineMargin,
+    let i = canvasHeightCenter - centerLineMargin,
       len = canvasHeightCenter + centerLineMargin;
     i <= len;
     i++
@@ -65,7 +65,7 @@ export function initCenteringGuidelines(canvas: any) {
     ctx.restore();
   }
 
-  var afterRenderActions = [],
+  let afterRenderActions = [],
     isInVerticalCenter: any,
     isInHorizontalCenter: any;
 
@@ -74,7 +74,7 @@ export function initCenteringGuidelines(canvas: any) {
   });
 
   canvas.on('object:moving', function (e: any) {
-    var object = e.target,
+    let object = e.target,
       objectCenter = object.getCenterPoint(),
       transform = canvas._currentTransform;
 

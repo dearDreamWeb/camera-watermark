@@ -5,7 +5,7 @@ import { fabric } from 'fabric';
  *
  */
 export function initAligningGuidelines(canvas: any) {
-  var ctx = canvas.getSelectionContext(),
+  let ctx = canvas.getSelectionContext(),
     aligningLineOffset = 5,
     aligningLineMargin = 4,
     aligningLineWidth = 1,
@@ -52,7 +52,7 @@ export function initAligningGuidelines(canvas: any) {
     value1 = Math.round(value1);
     value2 = Math.round(value2);
     for (
-      var i = value1 - aligningLineMargin, len = value1 + aligningLineMargin;
+      let i = value1 - aligningLineMargin, len = value1 + aligningLineMargin;
       i <= len;
       i++
     ) {
@@ -63,7 +63,7 @@ export function initAligningGuidelines(canvas: any) {
     return false;
   }
 
-  var verticalLines: any = [],
+  let verticalLines: any = [],
     horizontalLines: any = [];
 
   canvas.on('mouse:down', function () {
@@ -72,7 +72,7 @@ export function initAligningGuidelines(canvas: any) {
   });
 
   canvas.on('object:moving', function (e: any) {
-    var activeObject = e.target,
+    let activeObject = e.target,
       canvasObjects = canvas.getObjects(),
       activeObjectCenter = activeObject.getCenterPoint(),
       activeObjectLeft = activeObjectCenter.x,
@@ -90,10 +90,10 @@ export function initAligningGuidelines(canvas: any) {
     // It should be trivial to DRY this up by encapsulating (repeating) creation of x1, x2, y1, and y2 into functions,
     // but we're not doing it here for perf. reasons -- as this a function that's invoked on every mouse move
 
-    for (var i = canvasObjects.length; i--; ) {
+    for (let i = canvasObjects.length; i--; ) {
       if (canvasObjects[i] === activeObject) continue;
 
-      var objectCenter = canvasObjects[i].getCenterPoint(),
+      let objectCenter = canvasObjects[i].getCenterPoint(),
         objectLeft = objectCenter.x,
         objectTop = objectCenter.y,
         objectBoundingRect = canvasObjects[i].getBoundingRect(),
@@ -273,10 +273,10 @@ export function initAligningGuidelines(canvas: any) {
   });
 
   canvas.on('after:render', function () {
-    for (var i = verticalLines.length; i--; ) {
+    for (let i = verticalLines.length; i--; ) {
       drawVerticalLine(verticalLines[i]);
     }
-    for (var i = horizontalLines.length; i--; ) {
+    for (let i = horizontalLines.length; i--; ) {
       drawHorizontalLine(horizontalLines[i]);
     }
 
