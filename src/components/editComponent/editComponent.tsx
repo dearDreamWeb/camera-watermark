@@ -6,29 +6,16 @@ import {
   useState,
 } from 'react';
 import { fabric } from 'fabric';
-import { downloadFile, loadImage } from '@/utils';
-import exifr from 'exifr';
-import canonLogo from '@/assets/images/canon.png';
-import fujifilmLogo from '@/assets/images/fujifilm.png'; // 富士
-import nikonLogo from '@/assets/images/nikon.png';
-import panasonicLogo from '@/assets/images/panasonic.png'; // 松下
-import sonyLogo from '@/assets/images/sony.png';
+import { loadImage } from '@/utils';
 import {
   initAligningGuidelines,
   initCenteringGuidelines,
 } from '@/utils/fabricPlugins';
+import { logoMap } from '@/constants';
 
 const LOGOHEIGHT = 60;
 const MAXWIDTH = 1200;
 const MAXHEIGHT = 800;
-
-const logoMap: Record<string, string> = {
-  canon: canonLogo,
-  fujifilm: fujifilmLogo,
-  nikon: nikonLogo,
-  panasonic: panasonicLogo,
-  sony: sonyLogo,
-};
 
 interface EditComponentProps {
   imgUrl: string;
@@ -37,7 +24,7 @@ interface EditComponentProps {
 }
 
 export interface ForWardRefHandler {
-  exportImageUrl: () => string;
+  exportImageUrl: () => Promise<string>;
 }
 
 const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
@@ -47,6 +34,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
     const logoCanvas = useRef<fabric.Canvas>();
     const downloadCanvas = useRef<fabric.Canvas>();
     const [exifData, setExifData] = useState(exifInfo);
+    const cacheImgUrl = useRef('');
 
     useEffect(() => {
       setExifData(exifInfo);
@@ -64,10 +52,21 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
     }, []);
 
     const initCanvas = async () => {
-      mainCanvas.current?.clear();
+      if (cacheImgUrl.current !== imgUrl) {
+        mainCanvas.current?.clear();
+      }
       logoCanvas.current?.clear();
 
+      // if (!exifData.hiddenLeftInfo) {
+      //   logoCanvas.current?.getActiveObjects()!.forEach((obj) => {
+      //     if ((obj as any).customType === 'leftGroup') {
+      //       logoCanvas.current?.remove(obj)
+      //     }
+      //   });
+      // }
+
       const img = await loadImage(imgUrl);
+      cacheImgUrl.current = imgUrl;
 
       if (img.width! > MAXWIDTH || img.height! > MAXHEIGHT) {
         const scaleFactor = Math.min(
@@ -100,7 +99,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         await initCanvas();
         renderEditContent();
       })();
-    }, [file, exifData]);
+    }, [exifData]);
 
     const renderEditContent = async () => {
       logoCanvas.current!.backgroundColor! = '#fff';
@@ -113,35 +112,35 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       }
       console.log('exifData', exifData);
 
-      const modelText = new fabric.IText(exifData?.Model || '', {
-        fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 20 : 16,
-        fill: '#333',
-        fontWeight: 'bold',
-      });
-      modelText.left = 0;
-      modelText.top = 0;
-      console.log(
-        'mainCanvas.current?.width',
-        mainCanvas.current?.width,
-        MAXWIDTH
-      );
-      const LensModelText = new fabric.IText(exifData?.LensModel || '', {
-        fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 12,
-        fill: '#666',
-        fontWeight: 'bold',
-      });
-      LensModelText.left = modelText.left;
-      LensModelText.top = Math.floor(modelText.top + modelText.height! + 8);
+      if (!exifData?.hiddenLeftInfo) {
+        const modelText = new fabric.IText(exifData?.Model || '', {
+          fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 20 : 16,
+          fill: '#333',
+          fontWeight: 'bold',
+        });
+        modelText.left = 0;
+        modelText.top = 0;
 
-      const leftGroup = new fabric.Group([modelText, LensModelText], {
-        left: 12,
-      });
-      leftGroup.top = Math.floor((LOGOHEIGHT - leftGroup.height!) / 2);
-      logoCanvas.current?.add(leftGroup);
+        const LensModelText = new fabric.IText(exifData?.LensModel || '', {
+          fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 12,
+          fill: '#666',
+          fontWeight: 'bold',
+        });
+        LensModelText.left = modelText.left;
+        LensModelText.top = Math.floor(modelText.top + modelText.height! + 8);
+
+        const leftGroup = new fabric.Group([modelText, LensModelText], {
+          left: 12,
+          customType: 'leftGroup',
+        } as any);
+        leftGroup.top = Math.floor((LOGOHEIGHT - leftGroup.height!) / 2);
+        logoCanvas.current?.add(leftGroup);
+      }
 
       const logoImg = await loadImage(
         logoMap[(exifData?.Make || '').toLocaleLowerCase()]
       );
+      (logoImg as any).customType = 'logoImg';
       logoImg.scale(0.15);
       console.log('logoImg', logoImg);
       logoImg.top = Math.floor(
@@ -152,67 +151,70 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       );
       logoCanvas.current?.add(logoImg);
 
-      const rightGroupStyle: fabric.ITextOptions = {
-        fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 14,
-        fill: '#333',
-        fontWeight: 'bold',
-      };
+      if (!exifData?.hiddenRightInfo) {
+        const rightGroupStyle: fabric.ITextOptions = {
+          fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 14,
+          fill: '#333',
+          fontWeight: 'bold',
+        };
 
-      // 焦距
-      const FocalLengthText = new fabric.IText(
-        `${exifData?.FocalLength}mm | ` || '',
-        rightGroupStyle
-      );
-      FocalLengthText.left = 0;
+        // 焦距
+        const FocalLengthText = new fabric.IText(
+          `${exifData?.FocalLength}mm | ` || '',
+          rightGroupStyle
+        );
+        FocalLengthText.left = 0;
 
-      // 光圈
-      const FNumberText = new fabric.IText(
-        `f/${exifData?.FNumber} | ` || '',
-        rightGroupStyle
-      );
-      FNumberText.left = Math.floor(
-        FocalLengthText.left! + FocalLengthText.width!
-      );
+        // 光圈
+        const FNumberText = new fabric.IText(
+          `f/${exifData?.FNumber} | ` || '',
+          rightGroupStyle
+        );
+        FNumberText.left = Math.floor(
+          FocalLengthText.left! + FocalLengthText.width!
+        );
 
-      // 快门
-      const ExposureTimeText = new fabric.IText(
-        `1/${Math.floor(
-          1 / (exifData?.ExposureTime! as number)
-        ).toString()}s | ` || '',
-        rightGroupStyle
-      );
-      ExposureTimeText.left = Math.floor(
-        FNumberText.left! + FNumberText.width!
-      );
+        // 快门
+        const ExposureTimeText = new fabric.IText(
+          `1/${exifData?.ExposureTime}s | ` || '',
+          rightGroupStyle
+        );
+        ExposureTimeText.left = Math.floor(
+          FNumberText.left! + FNumberText.width!
+        );
 
-      // ISO
-      const ISOText = new fabric.IText(
-        `ISO${exifData?.ISO}` || '',
-        rightGroupStyle
-      );
-      ISOText.left = Math.floor(
-        ExposureTimeText.left! + ExposureTimeText.width!
-      );
+        // ISO
+        const ISOText = new fabric.IText(
+          `ISO${exifData?.ISO}` || '',
+          rightGroupStyle
+        );
+        ISOText.left = Math.floor(
+          ExposureTimeText.left! + ExposureTimeText.width!
+        );
 
-      const rightGroup = new fabric.Group([
-        ExposureTimeText,
-        FNumberText,
-        FocalLengthText,
-        ISOText,
-      ]);
-      rightGroup.top = Math.floor((LOGOHEIGHT - rightGroup.height!) / 2);
-      rightGroup.left = Math.floor(
-        logoCanvas.current?.width! - rightGroup.width! - 12
-      );
-      rightGroup.selectable = true;
-      logoCanvas.current?.add(rightGroup);
+        const rightGroup = new fabric.Group(
+          [ExposureTimeText, FNumberText, FocalLengthText, ISOText],
+          {
+            customType: 'leftGroup',
+          } as any
+        );
+        rightGroup.top = Math.floor((LOGOHEIGHT - rightGroup.height!) / 2);
+        rightGroup.left = Math.floor(
+          logoCanvas.current?.width! - rightGroup.width! - 12
+        );
+        logoCanvas.current?.add(rightGroup);
+      }
+
+      logoCanvas.current?.getObjects()!.forEach((obj) => {
+        obj.selectable = false;
+      });
     };
 
     useImperativeHandle(ref, () => ({
       exportImageUrl,
     }));
 
-    const exportImageUrl = () => {
+    const exportImageUrl = async (): Promise<string> => {
       downloadCanvas.current?.clear();
       downloadCanvas.current!.backgroundColor! = '#fff';
       const mainCanvasObjects = mainCanvas.current?.getObjects()!;
@@ -228,8 +230,10 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         obj.top! += mainCanvas.current?.height!;
         downloadCanvas.current?.add(obj);
       });
+
       downloadCanvas.current?.renderAll();
-      console.log(11111);
+      console.log('----logoCanvasObjects', logoCanvasObjects);
+      // debugger;
       const imageData = downloadCanvas.current?.toDataURL({
         format: 'png',
         // 质量
@@ -237,6 +241,12 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         // 分辨率倍数
         multiplier: Math.max(mainCanvasObjects[0].width! / MAXWIDTH, 1),
       })!;
+
+      logoCanvasObjects.forEach((obj) => {
+        obj.top! -= mainCanvas.current?.height!;
+      });
+      logoCanvas.current?.renderAll();
+
       return imageData;
     };
 
