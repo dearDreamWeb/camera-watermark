@@ -46,6 +46,11 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
     const mainCanvas = useRef<fabric.Canvas>();
     const logoCanvas = useRef<fabric.Canvas>();
     const downloadCanvas = useRef<fabric.Canvas>();
+    const [exifData, setExifData] = useState(exifInfo);
+
+    useEffect(() => {
+      setExifData(exifInfo);
+    }, [exifInfo]);
 
     useEffect(() => {
       const fabricCanvas = new fabric.Canvas('mainCanvas');
@@ -95,19 +100,20 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         await initCanvas();
         renderEditContent();
       })();
-    }, [file, exifInfo]);
+    }, [file, exifData]);
 
     const renderEditContent = async () => {
-      console.log(111, exifInfo);
+      logoCanvas.current!.backgroundColor! = '#fff';
+      console.log(111, exifData);
       if (
-        !exifInfo?.Make ||
-        !logoMap[(exifInfo?.Make || '').toLocaleLowerCase()]
+        !exifData?.Make ||
+        !logoMap[(exifData?.Make || '').toLocaleLowerCase()]
       ) {
         return;
       }
-      console.log('exifInfo', exifInfo);
+      console.log('exifData', exifData);
 
-      const modelText = new fabric.IText(exifInfo?.Model || '', {
+      const modelText = new fabric.IText(exifData?.Model || '', {
         fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 20 : 16,
         fill: '#333',
         fontWeight: 'bold',
@@ -119,7 +125,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         mainCanvas.current?.width,
         MAXWIDTH
       );
-      const LensModelText = new fabric.IText(exifInfo?.LensModel || '', {
+      const LensModelText = new fabric.IText(exifData?.LensModel || '', {
         fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 12,
         fill: '#666',
         fontWeight: 'bold',
@@ -134,7 +140,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       logoCanvas.current?.add(leftGroup);
 
       const logoImg = await loadImage(
-        logoMap[(exifInfo?.Make || '').toLocaleLowerCase()]
+        logoMap[(exifData?.Make || '').toLocaleLowerCase()]
       );
       logoImg.scale(0.15);
       console.log('logoImg', logoImg);
@@ -154,14 +160,14 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
 
       // 焦距
       const FocalLengthText = new fabric.IText(
-        `${exifInfo?.FocalLength}mm | ` || '',
+        `${exifData?.FocalLength}mm | ` || '',
         rightGroupStyle
       );
       FocalLengthText.left = 0;
 
       // 光圈
       const FNumberText = new fabric.IText(
-        `f/${exifInfo?.FNumber} | ` || '',
+        `f/${exifData?.FNumber} | ` || '',
         rightGroupStyle
       );
       FNumberText.left = Math.floor(
@@ -171,7 +177,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       // 快门
       const ExposureTimeText = new fabric.IText(
         `1/${Math.floor(
-          1 / (exifInfo?.ExposureTime! as number)
+          1 / (exifData?.ExposureTime! as number)
         ).toString()}s | ` || '',
         rightGroupStyle
       );
@@ -181,7 +187,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
 
       // ISO
       const ISOText = new fabric.IText(
-        `ISO${exifInfo?.ISO}` || '',
+        `ISO${exifData?.ISO}` || '',
         rightGroupStyle
       );
       ISOText.left = Math.floor(
@@ -211,17 +217,10 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       downloadCanvas.current!.backgroundColor! = '#fff';
       const mainCanvasObjects = mainCanvas.current?.getObjects()!;
       const logoCanvasObjects = logoCanvas.current?.getObjects()!;
-      // const logoHeight = Math.floor(
-      //   LOGOHEIGHT * (mainCanvasObjects[0].width! / MAXWIDTH)
-      // );
       const width = mainCanvas.current?.width!;
       const height = mainCanvas.current?.height! + logoCanvas.current?.height!;
-      // const width = mainCanvasObjects[0].width!;
-      // const height = mainCanvasObjects[0].height! + logoHeight;
       downloadCanvas.current?.setDimensions({ width, height });
 
-      // mainCanvasObjects[0].scale(1);
-      // downloadCanvas.current?.add(mainCanvasObjects[0]);
       mainCanvasObjects.forEach((obj) => {
         downloadCanvas.current?.add(obj);
       });
@@ -242,11 +241,19 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
     };
 
     return (
-      <div className="bg-white">
-        <canvas id="mainCanvas" width={MAXWIDTH} height={300}></canvas>
-        <canvas id="logoCanvas" width={MAXWIDTH} height={LOGOHEIGHT}></canvas>
-        <div className="hidden">
-          <canvas id="downloadCanvas"></canvas>
+      <div
+        className="bg-gray-50 flex justify-center items-center"
+        style={{
+          width: `${MAXWIDTH}px`,
+          height: `${LOGOHEIGHT + MAXHEIGHT}px`,
+        }}
+      >
+        <div>
+          <canvas id="mainCanvas" width={MAXWIDTH} height={300}></canvas>
+          <canvas id="logoCanvas" width={MAXWIDTH} height={LOGOHEIGHT}></canvas>
+          <div className="hidden">
+            <canvas id="downloadCanvas"></canvas>
+          </div>
         </div>
       </div>
     );
