@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { fabric } from 'fabric';
-import { downloadFile, loadImage } from '@/utils';
+import { downloadFile, loadImage, saveFile } from '@/utils';
 import exifr from 'exifr';
 import EditComponent, {
   ForWardRefHandler,
@@ -9,6 +9,7 @@ import { logoMap } from '@/constants';
 import { Button } from '@/components/ui/button';
 import { Input, InputNumber } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import Worker from '../../workers/index?worker';
 
 type ExifBaseType =
   | 'FocalLength'
@@ -89,13 +90,16 @@ const Index = () => {
 
   const downloadHandler = async () => {
     const downloadImageData = await editRef.current?.exportImageUrl()!;
-    // return;
-    // const downloadLink = document.createElement('a');
-    // downloadLink.href = downloadImageData;
-    // downloadLink.download = `${imgInfo.file?.name}_${+new Date()}.png`;
-    // downloadLink.click();
-    // console.log(222222);
-    downloadFile(downloadImageData, `${imgInfo.file?.name}_${+new Date()}.png`);
+
+    const worker = new Worker();
+    worker.postMessage({
+      imageData: downloadImageData,
+    });
+    worker.onmessage = (event) => {
+      const { blob } = event.data;
+      saveFile(blob, `${imgInfo.file?.name}_${+new Date()}.png`);
+      worker.terminate();
+    };
   };
 
   const changeExif = (type: ExifBaseType, value: string) => {

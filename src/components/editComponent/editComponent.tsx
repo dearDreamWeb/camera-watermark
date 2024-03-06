@@ -23,6 +23,10 @@ interface EditComponentProps {
   exifInfo: any;
 }
 
+interface ExportImageUrlParams {
+  multiplier?: number;
+}
+
 export interface ForWardRefHandler {
   exportImageUrl: () => Promise<string>;
 }
@@ -35,6 +39,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
     const downloadCanvas = useRef<fabric.Canvas>();
     const [exifData, setExifData] = useState(exifInfo);
     const cacheImgUrl = useRef('');
+    const [previewImg, setPreviewImg] = useState('');
 
     useEffect(() => {
       setExifData(exifInfo);
@@ -97,7 +102,9 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       }
       (async () => {
         await initCanvas();
-        renderEditContent();
+        await renderEditContent();
+        const imgData = await exportImageUrl({ multiplier: 1 });
+        setPreviewImg(imgData);
       })();
     }, [exifData]);
 
@@ -214,7 +221,9 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       exportImageUrl,
     }));
 
-    const exportImageUrl = async (): Promise<string> => {
+    const exportImageUrl = async (
+      params: ExportImageUrlParams = {}
+    ): Promise<string> => {
       downloadCanvas.current?.clear();
       downloadCanvas.current!.backgroundColor! = '#fff';
       const mainCanvasObjects = mainCanvas.current?.getObjects()!;
@@ -239,7 +248,9 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         // 质量
         quality: 1,
         // 分辨率倍数
-        multiplier: Math.max(mainCanvasObjects[0].width! / MAXWIDTH, 1),
+        multiplier: params.multiplier
+          ? params.multiplier
+          : Math.max(mainCanvasObjects[0].width! / MAXWIDTH, 1),
       })!;
 
       logoCanvasObjects.forEach((obj) => {
