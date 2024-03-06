@@ -89,7 +89,7 @@ const Index = () => {
               hiddenLeftInfo: false,
               hiddenRightInfo: false,
             }
-          : { ...defaultParams.current[0].info },
+          : { ...(defaultParams.current?.[0]?.info || {}) },
         imgUrl: e.target?.result as string,
       });
     };
@@ -200,7 +200,7 @@ const Index = () => {
             相机LOGO
             {imgInfo?.exifInfo?.Make && (
               <span
-                className="text-xs link link-accent ml-4"
+                className="text-xs text-green-400 link link-accent ml-4 cursor-pointer hover:text-green-600"
                 onClick={() => setOpenLogo(true)}
               >
                 更改logo
