@@ -10,7 +10,7 @@ type RenderReturn = (
 interface MessageProps {
   info: RenderReturn;
   success: RenderReturn;
-  warning: RenderReturn;
+  //   warning: RenderReturn;
   error: RenderReturn;
 }
 interface MessageComponentProps {
@@ -102,7 +102,7 @@ const render = (type: string) => {
 const message: MessageProps = {
   success: render('success'),
   info: render('info'),
-  warning: render('warning'),
+  //   warning: render('warning'),
   error: render('error'),
 };
 

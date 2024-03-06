@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import eslintPlugin from 'vite-plugin-eslint'; // 引入
 import path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,6 +13,7 @@ export default defineConfig({
       cache: false,
       include: './src',
     }),
+    visualizer(),
   ],
   base: './',
   server: {

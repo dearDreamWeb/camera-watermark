@@ -58,6 +58,7 @@
     "react-router-config": "^5.1.1",
     "react-router-dom": "5.2.0",
     "rimraf": "^5.0.5",
+    "rollup-plugin-visualizer": "^5.12.0",
     "stylelint": "^14.14.0",
     "stylelint-config-css-modules": "^4.1.0",
     "stylelint-config-prettier": "^9.0.3",
