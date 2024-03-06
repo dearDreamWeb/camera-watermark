@@ -120,6 +120,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       console.log('exifData', exifData);
 
       if (!exifData?.hiddenLeftInfo) {
+        // 相机
         const modelText = new fabric.IText(exifData?.Model || '', {
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 20 : 16,
           fill: '#333',
@@ -128,6 +129,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         modelText.left = 0;
         modelText.top = 0;
 
+        // 镜头
         const LensModelText = new fabric.IText(exifData?.LensModel || '', {
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 12,
           fill: '#666',

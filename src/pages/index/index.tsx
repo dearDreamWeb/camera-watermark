@@ -9,7 +9,16 @@ import { logoMap } from '@/constants';
 import { Button } from '@/components/ui/button';
 import { Input, InputNumber } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Worker from '../../workers/index?worker';
+import message from '@/components/message/message';
 
 type ExifBaseType =
   | 'FocalLength'
@@ -17,7 +26,9 @@ type ExifBaseType =
   | 'ExposureTime'
   | 'ISO'
   | 'spaceX'
-  | 'spaceY';
+  | 'spaceY'
+  | 'Model'
+  | 'LensModel';
 
 interface ExifBaseInfoListChildrenItem {
   name: ExifBaseType;
@@ -41,8 +52,12 @@ const Index = () => {
     exifInfo: {},
     imgUrl: '',
   });
+  const [openLogo, setOpenLogo] = useState(false);
+  const defaultParams = useRef<any[]>([]);
 
   useEffect(() => {
+    const data = localStorage.getItem('defaultParams');
+    defaultParams.current = JSON.parse(data || '[]');
     if (!fileRef.current) {
       return;
     }
@@ -56,24 +71,25 @@ const Index = () => {
   const imgChange = async () => {
     const file = fileRef.current!.files![0];
     const reader = new FileReader();
-
     reader.onload = async function (e) {
       let files = Array.from(fileRef.current!.files!);
       let exifs = await Promise.all(
         files.map((file) => exifr.parse(file, true))
       );
-      // console.log('---exifs', exifs);
+      console.log('---exifs', exifs);
       setImgInfo({
         file,
-        exifInfo: {
-          ...exifs[0]!,
-          ExposureTime:
-            typeof exifs[0]?.ExposureTime === 'number'
-              ? Math.floor(1 / exifs[0].ExposureTime)
-              : null,
-          hiddenLeftInfo: false,
-          hiddenRightInfo: false,
-        },
+        exifInfo: exifs[0]?.Make
+          ? {
+              ...exifs[0]!,
+              ExposureTime:
+                typeof exifs[0]?.ExposureTime === 'number'
+                  ? Math.floor(1 / exifs[0].ExposureTime)
+                  : null,
+              hiddenLeftInfo: false,
+              hiddenRightInfo: false,
+            }
+          : { ...defaultParams.current[0].info },
         imgUrl: e.target?.result as string,
       });
     };
@@ -112,7 +128,7 @@ const Index = () => {
   const exifBaseInfoList: ExifBaseInfoListItem[] = useMemo(() => {
     return [
       {
-        name: 'Exif参数',
+        name: '镜头参数',
         children: [
           {
             name: 'FocalLength',
@@ -132,8 +148,36 @@ const Index = () => {
           },
         ],
       },
+      {
+        name: '相机参数',
+        children: [
+          {
+            name: 'Model',
+            label: '相机：',
+          },
+          {
+            name: 'LensModel',
+            label: '镜头：',
+          },
+        ],
+      },
     ];
   }, []);
+
+  const logoList = useMemo(() => {
+    return Object.keys(logoMap).map((item) => ({
+      value: item,
+      url: logoMap[item],
+    }));
+  }, [logoMap]);
+
+  const saveDefaultParams = () => {
+    message.success('保存成功');
+    localStorage.setItem(
+      'defaultParams',
+      JSON.stringify([{ key: +new Date(), info: imgInfo?.exifInfo }])
+    );
+  };
 
   return (
     <div className="flex">
@@ -155,7 +199,12 @@ const Index = () => {
           <div className="font-bold text-base flex items-center">
             相机LOGO
             {imgInfo?.exifInfo?.Make && (
-              <span className="text-xs link link-accent ml-4">更改logo</span>
+              <span
+                className="text-xs link link-accent ml-4"
+                onClick={() => setOpenLogo(true)}
+              >
+                更改logo
+              </span>
             )}
           </div>
           <img
@@ -163,25 +212,34 @@ const Index = () => {
             src={logoMap[(imgInfo?.exifInfo?.Make || '').toLocaleLowerCase()]}
           />
         </div>
-        {exifBaseInfoList.map((groupItem) => (
+        {exifBaseInfoList.map((groupItem, index) => (
           <div key={groupItem.name} className="mb-8">
-            <div className="font-bold text-base mb-4">Exif参数</div>
+            <div className="font-bold text-base mb-4">{groupItem.name}</div>
             {groupItem.children.map((item) => (
               <div className="flex items-center mb-2" key={item.name}>
                 <div className="w-16">{item.label}</div>
-                <InputNumber
-                  placeholder="请输入数字"
-                  value={imgInfo?.exifInfo?.[item.name] || '0'}
-                  onChange={(e) => changeExif(item.name, e.target.value)}
-                />
+                {index === 0 ? (
+                  <InputNumber
+                    placeholder="请输入数字"
+                    value={imgInfo?.exifInfo?.[item.name] || '0'}
+                    onChange={(e) => changeExif(item.name, e.target.value)}
+                  />
+                ) : (
+                  <Input
+                    placeholder="请输入参数"
+                    value={imgInfo?.exifInfo?.[item.name] || ''}
+                    onChange={(e) => changeExif(item.name, e.target.value)}
+                  />
+                )}
               </div>
             ))}
           </div>
         ))}
-        <div>
+        <div className="mb-8">
           <div>
             <div>隐藏左边信息</div>
             <Switch
+              className="my-2"
               checked={imgInfo?.exifInfo?.hiddenLeftInfo}
               onCheckedChange={(value: boolean) => {
                 console.log('onCheckedChange', value);
@@ -195,6 +253,7 @@ const Index = () => {
           <div>
             <div>隐藏右边信息</div>
             <Switch
+              className="my-2"
               checked={imgInfo?.exifInfo?.hiddenRightInfo}
               onCheckedChange={(value: boolean) => {
                 console.log('onCheckedChange', value);
@@ -206,7 +265,43 @@ const Index = () => {
             />
           </div>
         </div>
+        {imgInfo?.exifInfo?.Make && (
+          <div className="flex justify-center items-center">
+            <Button variant="ghost" onClick={saveDefaultParams}>
+              设置为默认参数
+            </Button>
+          </div>
+        )}
       </div>
+
+      <Dialog open={openLogo} onOpenChange={(value) => setOpenLogo(value)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>更换LOGO</DialogTitle>
+          </DialogHeader>
+          <div>
+            <RadioGroup
+              value={(imgInfo?.exifInfo?.Make || '').toLocaleLowerCase()}
+              onValueChange={(value: string) =>
+                setImgInfo({
+                  ...imgInfo,
+                  exifInfo: { ...imgInfo.exifInfo, Make: value },
+                })
+              }
+              className="flex"
+            >
+              {logoList.map((item) => (
+                <div className="flex items-center space-x-2" key={item.value}>
+                  <RadioGroupItem value={item.value} id={item.value} />
+                  <Label htmlFor={item.value}>
+                    <img src={item.url} />
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
