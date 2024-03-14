@@ -21,6 +21,7 @@ interface EditComponentProps {
   imgUrl: string;
   file: File | null;
   exifInfo: any;
+  onPreviewImg?: (imgData: string) => void;
 }
 
 interface ExportImageUrlParams {
@@ -28,12 +29,12 @@ interface ExportImageUrlParams {
 }
 
 export interface ForWardRefHandler {
-  exportImageUrl: () => Promise<string>;
+  exportImageUrl: (props: { multiplier?: number }) => Promise<string>;
 }
 
 const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
   (props, ref) => {
-    const { file, exifInfo, imgUrl } = props;
+    const { file, exifInfo, imgUrl, onPreviewImg } = props;
     const mainCanvas = useRef<fabric.Canvas>();
     const logoCanvas = useRef<fabric.Canvas>();
     const downloadCanvas = useRef<fabric.Canvas>();
@@ -105,6 +106,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         await renderEditContent();
         const imgData = await exportImageUrl({ multiplier: 1 });
         setPreviewImg(imgData);
+        onPreviewImg?.(imgData);
       })();
     }, [exifData]);
 
