@@ -20,6 +20,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Worker from '../../workers/index?worker';
 import message from '@/components/message/message';
 import { useHistory } from 'react-router-dom';
+import logoSvg from '../../../public/vite.svg';
 
 type ExifBaseType =
   | 'FocalLength'
@@ -121,7 +122,7 @@ const Index = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="font-bold">
       <input
         type="file"
         ref={fileRef}
@@ -129,7 +130,28 @@ const Index = () => {
         className="hidden"
         multiple
       />
-      <Button onClick={() => fileRef.current?.click()}>选择图片</Button>
+      <div className="flex flex-col justify-center items-center">
+        <div className="mb-12">
+          <div className="flex items-center text-5xl">
+            <img src={logoSvg} className="w-16 mr-4" />
+            无忧相机水印
+          </div>
+          <div className="text-nowrap text-gray-500 mt-4 text-center">
+            通过图片的 EXIF 信息，合成出来新的图片。
+          </div>
+        </div>
+        <div className="flex flex-col justify-center">
+          <div className="flex justify-center">
+            <Button onClick={() => fileRef.current?.click()}>选择图片</Button>
+          </div>
+          <div className="text-gray-500 mt-4 mb-2">
+            只有通过单反相机/手机等设备的镜头拍摄的JPEG、TIFF等格式照片才有EXIF数据
+          </div>
+          <div className="text-gray-500">
+            请上传原始数字照片，如照片被软件编辑修改或用微信QQ转发过，EXIF信息会变化或丢失
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
