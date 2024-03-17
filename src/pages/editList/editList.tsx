@@ -48,7 +48,7 @@ function EditList() {
   };
 
   return (
-    <div>
+    <div className="font-bold w-full min-h-screen px-8 pt-20 pb-16">
       <div className="flex justify-center items-center mb-12">
         <Button
           onClick={async () => {
@@ -60,11 +60,11 @@ function EditList() {
           批量下载
         </Button>
       </div>
-      <div className="flex">
+      <div className="flex flex-wrap">
         {list.map((item: any, index: number) => (
           <div
             key={index}
-            className="group w-80 h-80 p-1 bg-white relative flex justify-center items-center mr-8 shadow-slate-300 cursor-pointer"
+            className="group w-80 h-80 p-1 bg-white relative flex justify-center items-center mr-8 mb-8 shadow-slate-300"
           >
             <div className="hidden">
               <EditComponent
@@ -87,7 +87,7 @@ function EditList() {
             <div className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0">
               <Icon
                 icon="mdi:eye-outline"
-                className="text-3xl hover:!text-gray-950"
+                className="text-3xl cursor-pointer hover:!text-gray-950 "
                 style={{ color: '#fff' }}
                 onClick={() => {
                   setPhotoIndex(index);
@@ -96,7 +96,7 @@ function EditList() {
               />
               <Icon
                 icon="mdi:square-edit-outline"
-                className="text-3xl ml-8 hover:!text-gray-950"
+                className="text-3xl ml-8 cursor-pointer hover:!text-gray-950 "
                 style={{ color: '#fff' }}
                 onClick={() => jumpToEdit(index)}
               />

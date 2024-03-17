@@ -21,6 +21,7 @@ import Worker from '../../workers/index?worker';
 import message from '@/components/message/message';
 import { useHistory } from 'react-router-dom';
 import logoSvg from '../../../public/vite.svg';
+import { Icon } from '@iconify-icon/react';
 
 type ExifBaseType =
   | 'FocalLength'
@@ -41,6 +42,37 @@ interface ExifBaseInfoListItem {
   name: string;
   children: ExifBaseInfoListChildrenItem[];
 }
+
+const descList = [
+  {
+    key: '0',
+    name: '安全',
+    color: '#C9F078',
+    iconName: 'mdi:shield-check-outline',
+    text: '无服务，本地处理，数据安全。',
+  },
+  {
+    key: '1',
+    name: '高效',
+    color: '#FADF66',
+    iconName: 'mdi:lightning-bolt-outline',
+    text: '图片可批量处理，快速导出效果图。',
+  },
+  {
+    key: '2',
+    name: '自定义',
+    color: '#fff',
+    iconName: 'mdi:settings-outline',
+    text: '可自定义设置图片的参数数据。',
+  },
+  {
+    key: '3',
+    name: '批量导图',
+    color: '#8AE5F6',
+    iconName: 'mdi:auto-awesome-motion',
+    text: '支持批量导入导出多张图片。',
+  },
+];
 
 const Index = () => {
   const history = useHistory();
@@ -122,7 +154,10 @@ const Index = () => {
   };
 
   return (
-    <div className="font-bold">
+    <div
+      className="font-bold min-h-screen pt-24 pb-16"
+      style={{ minWidth: '960px', maxWidth: '1200px' }}
+    >
       <input
         type="file"
         ref={fileRef}
@@ -131,7 +166,7 @@ const Index = () => {
         multiple
       />
       <div className="flex flex-col justify-center items-center">
-        <div className="mb-12">
+        <section className="mb-12">
           <div className="flex items-center text-5xl">
             <img src={logoSvg} className="w-16 mr-4" />
             无忧相机水印
@@ -139,8 +174,8 @@ const Index = () => {
           <div className="text-nowrap text-gray-500 mt-4 text-center">
             通过图片的 EXIF 信息，合成出来新的图片。
           </div>
-        </div>
-        <div className="flex flex-col justify-center">
+        </section>
+        <section className="flex flex-col justify-center">
           <div className="flex justify-center">
             <Button onClick={() => fileRef.current?.click()}>选择图片</Button>
           </div>
@@ -150,7 +185,27 @@ const Index = () => {
           <div className="text-gray-500">
             请上传原始数字照片，如照片被软件编辑修改或用微信QQ转发过，EXIF信息会变化或丢失
           </div>
-        </div>
+        </section>
+        <section className="grid w-full grid-cols-2 gap-x-12 gap-y-4 mt-8">
+          {descList.map((item) => (
+            <div
+              key={item.key}
+              className="px-4 py-8 rounded-lg border-2 bg-white"
+            >
+              <div>
+                <div className="p-2 bg-black inline-flex rounded-md">
+                  <Icon
+                    icon={item.iconName}
+                    className="text-2xl"
+                    style={{ color: item.color }}
+                  ></Icon>
+                </div>
+              </div>
+              <h1 className="text-xl my-4">{item.name}</h1>
+              <p className="text-gray-500 font-normal">{item.text}</p>
+            </div>
+          ))}
+        </section>
       </div>
     </div>
   );

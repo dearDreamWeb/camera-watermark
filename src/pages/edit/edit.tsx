@@ -194,7 +194,7 @@ const Edit = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen pt-24 pb-16">
       <div className="flex flex-col justify-center mr-8">
         <input type="file" ref={fileRef} accept="image/*" className="hidden" />
         <Button onClick={uploadImg}>更换图片</Button>
