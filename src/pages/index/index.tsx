@@ -22,6 +22,7 @@ import message from '@/components/message/message';
 import { useHistory } from 'react-router-dom';
 import logoSvg from '../../../public/vite.svg';
 import { Icon } from '@iconify-icon/react';
+import Lightbox from 'react-image-lightbox';
 
 type ExifBaseType =
   | 'FocalLength'
@@ -74,6 +75,11 @@ const descList = [
   },
 ];
 
+const exampleList = [
+  'https://resource.blogwxb.cn/cameraWatermark/example_1.png',
+  'https://resource.blogwxb.cn/cameraWatermark/example_2.png',
+];
+
 const Index = () => {
   const history = useHistory();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -89,6 +95,8 @@ const Index = () => {
   });
   const [openLogo, setOpenLogo] = useState(false);
   const defaultParams = useRef<any[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [photoIndex, setPhotoIndex] = useState(0);
 
   useEffect(() => {
     const data = localStorage.getItem('defaultParams');
@@ -172,7 +180,7 @@ const Index = () => {
             无忧相机水印
           </div>
           <div className="text-nowrap text-gray-500 mt-4 text-center">
-            通过图片的 EXIF 信息，合成出来新的图片。
+            通过图片的 EXIF 信息，合成出来新的相机水印图片。
           </div>
         </section>
         <section className="flex flex-col justify-center">
@@ -180,7 +188,10 @@ const Index = () => {
             <Button onClick={() => fileRef.current?.click()}>选择图片</Button>
           </div>
           <div className="text-gray-500 mt-4 mb-2">
-            只有通过单反相机/手机等设备的镜头拍摄的JPEG、TIFF等格式照片才有EXIF数据
+            本软件只处理通过
+            <span className="text-red-500 mx-1">单反/微单</span>
+            相机设备的镜头拍摄的JPEG、TIFF等格式照片的
+            <span className="text-red-500 mx-1">EXIF</span>数据进行处理
           </div>
           <div className="text-gray-500">
             请上传原始数字照片，如照片被软件编辑修改或用微信QQ转发过，EXIF信息会变化或丢失
@@ -206,7 +217,65 @@ const Index = () => {
             </div>
           ))}
         </section>
+        <section className="mt-12 bg-white w-full rounded-lg py-4">
+          <h1 className="text-2xl text-center mb-2">示例图片</h1>
+          <div className="text-gray-500 text-center mb-4">点击可查看大图</div>
+          <div className="flex justify-center">
+            <div className="group relative mr-8">
+              <img
+                src={
+                  'https://resource.blogwxb.cn/cameraWatermark/example_1.png'
+                }
+                alt={'example_1'}
+                style={{ width: '420px', height: '301px' }}
+              />
+              <div
+                className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
+                onClick={() => {
+                  setPhotoIndex(0);
+                  setIsOpen(true);
+                }}
+              ></div>
+            </div>
+            <div className="group relative">
+              <img
+                src={
+                  'https://resource.blogwxb.cn/cameraWatermark/example_2.png'
+                }
+                alt={'example_1'}
+                style={{ height: '301px' }}
+              />
+              <div
+                className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
+                onClick={() => {
+                  setPhotoIndex(1);
+                  setIsOpen(true);
+                }}
+              ></div>
+            </div>
+          </div>
+        </section>
       </div>
+      {isOpen && (
+        <Lightbox
+          mainSrc={exampleList[photoIndex]}
+          nextSrc={exampleList[(photoIndex + 1) % exampleList.length]}
+          prevSrc={
+            exampleList[
+              (photoIndex + exampleList.length - 1) % exampleList.length
+            ]
+          }
+          onCloseRequest={() => setIsOpen(false)}
+          onMovePrevRequest={() =>
+            setPhotoIndex(
+              (photoIndex + exampleList.length - 1) % exampleList.length
+            )
+          }
+          onMoveNextRequest={() =>
+            setPhotoIndex((photoIndex + 1) % exampleList.length)
+          }
+        />
+      )}
     </div>
   );
 };
