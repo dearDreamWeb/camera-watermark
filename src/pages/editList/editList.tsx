@@ -10,21 +10,27 @@ import 'react-image-lightbox/style.css'; // This only needs to be imported once 
 import { Button } from '@/components/ui/button';
 import Worker from '../../workers/index?worker';
 import { saveFile } from '@/utils';
+import { getDbEditInfo } from '@/db/utils';
 
 function EditList() {
   const location = useLocation<any>();
   const history = useHistory();
-  const { infoList = [] } = location.state;
+  const { listLen = 0 } = location.state;
   const [list, setList] = useState([]);
   const [previewList, setPreviewList] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const editRefs = infoList.map(() => useRef<ForWardRefHandler>(null));
+  const editRefs = new Array(listLen)
+    .fill(1)
+    .map(() => useRef<ForWardRefHandler>(null));
 
   useEffect(() => {
-    setList(JSON.parse(JSON.stringify(infoList)));
-    setPreviewList(new Array(infoList.length).fill(''));
-  }, [infoList]);
+    (async () => {
+      const list = await getDbEditInfo();
+      setList(JSON.parse(JSON.stringify(list)));
+      setPreviewList(new Array(list.length).fill(''));
+    })();
+  }, [listLen]);
 
   const jumpToEdit = (index: number) => {
     history.push('/edit', { editState: list[index] });

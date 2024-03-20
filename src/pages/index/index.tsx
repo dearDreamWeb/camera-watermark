@@ -20,9 +20,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Worker from '../../workers/index?worker';
 import message from '@/components/message/message';
 import { useHistory } from 'react-router-dom';
-import logoSvg from '../../../public/vite.svg';
+import logoSvg from '/vite.svg';
 import { Icon } from '@iconify-icon/react';
 import Lightbox from 'react-image-lightbox';
+import { addDbEditInfo, clearDbEditInfo } from '@/db/utils';
 
 type ExifBaseType =
   | 'FocalLength'
@@ -112,6 +113,7 @@ const Index = () => {
 
   /**图片变化 */
   const imgChange = async () => {
+    await clearDbEditInfo();
     const filesList = fileRef.current!.files!;
     console.log('fileRef.current!.files', fileRef.current!.files);
     const list = [];
@@ -119,7 +121,8 @@ const Index = () => {
       const info = await renderFile(filesList[i]);
       list.push(info);
     }
-    history.push('/editList', { infoList: list });
+    const listLen = await addDbEditInfo(list as any[]);
+    history.push('/editList', { listLen });
   };
 
   const renderFile = (file: File) => {
@@ -219,7 +222,9 @@ const Index = () => {
         </section>
         <section className="mt-12 bg-white w-full rounded-lg py-4">
           <h1 className="text-2xl text-center mb-2">示例图片</h1>
-          <div className="text-gray-500 text-center mb-4">点击可查看大图</div>
+          <div className="text-gray-500 text-center mb-4">
+            点击可查看大图（示例图不代表最终效果，仅供参考）
+          </div>
           <div className="flex justify-center">
             <div className="group relative mr-8">
               <img

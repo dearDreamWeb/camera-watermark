@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styles from './App.module.less';
 import routes from '../config/routes';
 import { renderRoutes } from 'react-router-config';
-import logoSvg from '../public/vite.svg';
+import logoSvg from '/vite.svg';
 import { useHistory } from 'react-router-dom';
 
 function App() {
