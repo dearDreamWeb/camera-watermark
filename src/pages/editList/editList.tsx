@@ -11,10 +11,15 @@ import { Button } from '@/components/ui/button';
 import Worker from '../../workers/index?worker';
 import { saveFile } from '@/utils';
 import { getDbEditInfo } from '@/db/utils';
+import loadingSystem from '@/components/loadingSystem/loadingSystem';
 
 function EditList() {
   const location = useLocation<any>();
   const history = useHistory();
+  if (!location.state) {
+    history.push('/');
+    return null;
+  }
   const { listLen = 0 } = location.state;
   const [list, setList] = useState([]);
   const [previewList, setPreviewList] = useState<string[]>([]);
@@ -26,6 +31,7 @@ function EditList() {
 
   useEffect(() => {
     (async () => {
+      loadingSystem(true);
       const list = await getDbEditInfo();
       setList(JSON.parse(JSON.stringify(list)));
       setPreviewList(new Array(list.length).fill(''));
@@ -81,6 +87,10 @@ function EditList() {
                 onPreviewImg={(imgData) => {
                   setPreviewList((previewImgList: any) => {
                     previewImgList[index] = imgData;
+                    const isOver = previewImgList.every((item: any) => !!item);
+                    if (isOver) {
+                      loadingSystem(false);
+                    }
                     return JSON.parse(JSON.stringify(previewImgList));
                   });
                 }}
@@ -90,10 +100,10 @@ function EditList() {
               <img src={previewList[index]} className="max-w-full max-h-full" />
             )}
 
-            <div className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0">
+            <div className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-50 absolute left-0 top-0">
               <Icon
                 icon="mdi:eye-outline"
-                className="text-3xl cursor-pointer hover:!text-gray-950 "
+                className="text-3xl cursor-pointer hover:!text-gray-300 "
                 style={{ color: '#fff' }}
                 onClick={() => {
                   setPhotoIndex(index);
@@ -102,7 +112,7 @@ function EditList() {
               />
               <Icon
                 icon="mdi:square-edit-outline"
-                className="text-3xl ml-8 cursor-pointer hover:!text-gray-950 "
+                className="text-3xl ml-8 cursor-pointer hover:!text-gray-300 "
                 style={{ color: '#fff' }}
                 onClick={() => jumpToEdit(index)}
               />

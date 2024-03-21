@@ -24,6 +24,16 @@ import logoSvg from '/vite.svg';
 import { Icon } from '@iconify-icon/react';
 import Lightbox from 'react-image-lightbox';
 import { addDbEditInfo, clearDbEditInfo } from '@/db/utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import loadingSystem from '@/components/loadingSystem/loadingSystem';
+
+// 最大上传数量
+const MAXLENGHT = 5;
 
 type ExifBaseType =
   | 'FocalLength'
@@ -113,8 +123,10 @@ const Index = () => {
 
   /**图片变化 */
   const imgChange = async () => {
+    loadingSystem(true);
     await clearDbEditInfo();
     const filesList = fileRef.current!.files!;
+
     console.log('fileRef.current!.files', fileRef.current!.files);
     const list = [];
     for (let i = 0; i < filesList?.length; i++) {
@@ -122,6 +134,7 @@ const Index = () => {
       list.push(info);
     }
     const listLen = await addDbEditInfo(list as any[]);
+    loadingSystem(false);
     history.push('/editList', { listLen });
   };
 
@@ -188,7 +201,20 @@ const Index = () => {
         </section>
         <section className="flex flex-col justify-center">
           <div className="flex justify-center">
-            <Button onClick={() => fileRef.current?.click()}>选择图片</Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={() => fileRef.current?.click()}>
+                    选择图片
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    由于相机数字图片内存较大，防止系统崩溃，建议最多选择5张图片
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="text-gray-500 mt-4 mb-2">
             本软件只处理通过

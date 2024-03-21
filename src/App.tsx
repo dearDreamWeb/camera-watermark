@@ -1,12 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './App.module.less';
 import routes from '../config/routes';
 import { renderRoutes } from 'react-router-config';
 import logoSvg from '/vite.svg';
 import { useHistory } from 'react-router-dom';
+import { clearDbEditInfo } from './db/utils';
 
 function App() {
   const history = useHistory();
+  useEffect(() => {
+    window.addEventListener('beforeunload', (event) => {
+      event.returnValue = `由于照片存储占用磁盘内存较大，刷新或者关闭将清除照片在本网站的缓存。确定吗?`;
+      history.push('/');
+      clearDbEditInfo();
+    });
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 relative">

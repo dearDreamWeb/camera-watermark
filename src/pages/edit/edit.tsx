@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Worker from '../../workers/index?worker';
 import message from '@/components/message/message';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 
 type ExifBaseType =
   | 'FocalLength'
@@ -43,6 +43,11 @@ interface ExifBaseInfoListItem {
 
 const Edit = () => {
   const location = useLocation<any>();
+  const history = useHistory();
+  if (!location.state) {
+    history.push('/');
+    return null;
+  }
   const { editState = {} } = location.state;
   const fileRef = useRef<HTMLInputElement>(null);
   const editRef = useRef<ForWardRefHandler>(null);
