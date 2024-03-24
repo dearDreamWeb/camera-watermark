@@ -11,3 +11,9 @@ export const logoMap: Record<string, string> = {
   panasonic: panasonicLogo,
   sony: sonyLogo,
 };
+
+export const getLogo = (make: string) => {
+  const list = Object.keys(logoMap);
+  const key = list.find((item) => make.includes(item));
+  return key || '';
+};

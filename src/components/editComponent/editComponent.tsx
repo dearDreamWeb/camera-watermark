@@ -11,7 +11,7 @@ import {
   initAligningGuidelines,
   initCenteringGuidelines,
 } from '@/utils/fabricPlugins';
-import { logoMap } from '@/constants';
+import { getLogo, logoMap } from '@/constants';
 
 const LOGOHEIGHT = 60;
 const MAXWIDTH = 1200;
@@ -115,7 +115,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       console.log(111, exifData);
       if (
         !exifData?.Make ||
-        !logoMap[(exifData?.Make || '').toLocaleLowerCase()]
+        !getLogo((exifData?.Make || '').toLocaleLowerCase())
       ) {
         return;
       }
@@ -149,7 +149,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       }
 
       const logoImg = await loadImage(
-        logoMap[(exifData?.Make || '').toLocaleLowerCase()]
+        logoMap[getLogo((exifData?.Make || '').toLocaleLowerCase())]
       );
       (logoImg as any).customType = 'logoImg';
       logoImg.scale(0.15);

@@ -5,7 +5,7 @@ import exifr from 'exifr';
 import EditComponent, {
   ForWardRefHandler,
 } from '@/components/editComponent/editComponent';
-import { logoMap } from '@/constants';
+import { getLogo, logoMap } from '@/constants';
 import { Button } from '@/components/ui/button';
 import { Input, InputNumber } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -199,7 +199,7 @@ const Edit = () => {
   };
 
   return (
-    <div className="flex min-h-screen pt-24 pb-16">
+    <div className="flex min-h-screen pt-24 pb-16 w-screen overflow-x-auto px-4">
       <div className="flex flex-col justify-center mr-8">
         <input type="file" ref={fileRef} accept="image/*" className="hidden" />
         <Button onClick={uploadImg}>更换图片</Button>
@@ -228,7 +228,11 @@ const Edit = () => {
           </div>
           <img
             className="h-12 m-auto"
-            src={logoMap[(imgInfo?.exifInfo?.Make || '').toLocaleLowerCase()]}
+            src={
+              logoMap[
+                getLogo((imgInfo?.exifInfo?.Make || '').toLocaleLowerCase())
+              ]
+            }
           />
         </div>
         {exifBaseInfoList.map((groupItem, index) => (
@@ -236,7 +240,7 @@ const Edit = () => {
             <div className="font-bold text-base mb-4">{groupItem.name}</div>
             {groupItem.children.map((item) => (
               <div className="flex items-center mb-2" key={item.name}>
-                <div className="w-16">{item.label}</div>
+                <div className="w-20">{item.label}</div>
                 {index === 0 ? (
                   <InputNumber
                     placeholder="请输入数字"

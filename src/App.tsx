@@ -32,7 +32,8 @@ function App() {
       {renderRoutes(routes)}
       <div
         id="message-wrapper"
-        className="fixed flex flex-col h-screen w-screen items-center left-0 top-8 pointer-events-none"
+        style={{ zIndex: 51 }}
+        className="fixed flex flex-col h-screen w-screen items-center left-0 top-4 pointer-events-none"
       ></div>
     </div>
   );
