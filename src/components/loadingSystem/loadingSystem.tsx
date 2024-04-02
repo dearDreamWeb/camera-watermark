@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Icon } from '@iconify-icon/react';
 
-const loadingSystem = (visible: boolean = false) => {
+const loadingSystem = (visible = false) => {
   const loadingFatherDom = document.querySelector('#loadingWrap');
   if (visible) {
     if (loadingFatherDom) {

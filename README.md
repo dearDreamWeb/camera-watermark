@@ -1,14 +1,8 @@
-# 模板
-react-ts-vite-template 模板
+# 无忧水印相机
 
-# 使用
-- `yarn` 安装依赖
-- `yarn dev` 启动项目
+这是一款免费开源的相机水印应用（目前只应用于相机）。
 
-# 功能
-- eslint
-- typescript
-- commitlint
-- husky
-- stylelint
-- prettier
+# 地址
+
+国内地址：https://camera-watermark.blogwxb.cn  
+国外 vercel 地址： https://camera-watermark.vercel.app/

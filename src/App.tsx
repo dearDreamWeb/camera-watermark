@@ -5,6 +5,7 @@ import { renderRoutes } from 'react-router-config';
 import logoSvg from '/vite.svg';
 import { useHistory } from 'react-router-dom';
 import { clearDbEditInfo } from './db/utils';
+import { Icon } from '@iconify-icon/react';
 
 function App() {
   const history = useHistory();
@@ -28,6 +29,13 @@ function App() {
           <img src={logoSvg} className="w-8 mr-4" />
           无忧相机水印
         </div>
+        <Icon
+          icon="mdi:github"
+          className="text-4xl cursor-pointer text-gray-800 hover:!text-gray-500"
+          onClick={() => {
+            window.open('https://github.com/dearDreamWeb/camera-watermark');
+          }}
+        ></Icon>
       </div>
       {renderRoutes(routes)}
       <div

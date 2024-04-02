@@ -131,7 +131,13 @@ const Index = () => {
     const list = [];
     for (let i = 0; i < filesList?.length; i++) {
       const info = await renderFile(filesList[i]);
-      list.push(info);
+      if (info) {
+        list.push(info);
+      }
+    }
+    if (!list.length) {
+      message.info('图片解析失败');
+      return;
     }
     const listLen = await addDbEditInfo(list as any[]);
     loadingSystem(false);
@@ -171,6 +177,11 @@ const Index = () => {
             filename: file.name,
           });
         }
+      };
+
+      reader.onerror = (e) => {
+        resolve(false);
+        console.log('error', e);
       };
 
       reader.readAsDataURL(file);

@@ -12,6 +12,7 @@ import {
   initCenteringGuidelines,
 } from '@/utils/fabricPlugins';
 import { getLogo, logoMap } from '@/constants';
+import message from '../message/message';
 
 const LOGOHEIGHT = 60;
 const MAXWIDTH = 1200;
@@ -71,29 +72,34 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       //   });
       // }
 
-      const img = await loadImage(imgUrl);
-      cacheImgUrl.current = imgUrl;
+      try {
+        const img = await loadImage(imgUrl);
+        cacheImgUrl.current = imgUrl;
 
-      if (img.width! > MAXWIDTH || img.height! > MAXHEIGHT) {
-        const scaleFactor = Math.min(
-          MAXWIDTH / img.width!,
-          MAXHEIGHT / img.height!
-        );
-        img.scale(scaleFactor);
+        if (img.width! > MAXWIDTH || img.height! > MAXHEIGHT) {
+          const scaleFactor = Math.min(
+            MAXWIDTH / img.width!,
+            MAXHEIGHT / img.height!
+          );
+          img.scale(scaleFactor);
+        }
+        const newWidth = img.width! * img.scaleX!;
+        const newHeight = img.height! * img.scaleY!;
+        mainCanvas.current!.setDimensions({
+          width: newWidth,
+          height: newHeight,
+        });
+        logoCanvas.current!.setDimensions({
+          width: newWidth,
+          height: LOGOHEIGHT,
+        });
+
+        img.selectable = false;
+        mainCanvas.current!.add(img);
+      } catch (error) {
+        message.error('图片加载失败');
       }
-      const newWidth = img.width! * img.scaleX!;
-      const newHeight = img.height! * img.scaleY!;
-      mainCanvas.current!.setDimensions({
-        width: newWidth,
-        height: newHeight,
-      });
-      logoCanvas.current!.setDimensions({
-        width: newWidth,
-        height: LOGOHEIGHT,
-      });
 
-      img.selectable = false;
-      mainCanvas.current!.add(img);
       return;
     };
 
