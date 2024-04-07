@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import loadingSystem from '@/components/loadingSystem/loadingSystem';
+import defaultData from '@/assets/data/defaultParams.json';
 
 // 最大上传数量
 const MAXLENGHT = 5;
@@ -111,7 +112,13 @@ const Index = () => {
 
   useEffect(() => {
     const data = localStorage.getItem('defaultParams');
-    defaultParams.current = JSON.parse(data || '[]');
+    if (!data) {
+      const list = [{ key: +new Date(), info: defaultData }];
+      defaultParams.current = list;
+      localStorage.setItem('defaultParams', JSON.stringify(list));
+    } else {
+      defaultParams.current = JSON.parse(data || '[]');
+    }
     if (!fileRef.current) {
       return;
     }
@@ -162,8 +169,10 @@ const Index = () => {
                     typeof exifs?.ExposureTime === 'number'
                       ? Math.floor(1 / exifs.ExposureTime)
                       : null,
-                  hiddenLeftInfo: false,
-                  hiddenRightInfo: false,
+                  hiddenLeftInfo:
+                    defaultParams.current?.[0].info?.hiddenLeftInfo || false,
+                  hiddenRightInfo:
+                    defaultParams.current?.[0].info?.hiddenRightInfo || false,
                 }
               : { ...(defaultParams.current?.[0]?.info || {}) },
             imgUrl: e.target?.result as string,

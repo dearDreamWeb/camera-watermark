@@ -21,7 +21,7 @@ import Worker from '../../workers/index?worker';
 import message from '@/components/message/message';
 import { useLocation, useHistory } from 'react-router-dom';
 
-type ExifBaseType =
+export type ExifBaseType =
   | 'FocalLength'
   | 'FNumber'
   | 'ExposureTime'
@@ -29,17 +29,58 @@ type ExifBaseType =
   | 'spaceX'
   | 'spaceY'
   | 'Model'
-  | 'LensModel';
+  | 'LensModel'
+  | 'Make'
+  | 'hiddenLeftInfo'
+  | 'hiddenRightInfo';
 
 interface ExifBaseInfoListChildrenItem {
   name: ExifBaseType;
   label: string;
+  render?: (value: string | number) => React.ReactNode;
 }
 
-interface ExifBaseInfoListItem {
+export interface ExifBaseInfoListItem {
   name: string;
   children: ExifBaseInfoListChildrenItem[];
 }
+
+export const exifBaseInfoList: ExifBaseInfoListItem[] = [
+  {
+    name: '镜头参数',
+    children: [
+      {
+        name: 'FocalLength',
+        label: '焦距：',
+      },
+      {
+        name: 'FNumber',
+        label: '光圈：',
+      },
+      {
+        name: 'ExposureTime',
+        label: '快门：',
+      },
+      {
+        name: 'ISO',
+        label: 'ISO：',
+      },
+    ],
+  },
+  {
+    name: '相机参数',
+    children: [
+      {
+        name: 'Model',
+        label: '相机：',
+      },
+      {
+        name: 'LensModel',
+        label: '镜头：',
+      },
+    ],
+  },
+];
 
 const Edit = () => {
   const location = useLocation<any>();
@@ -105,8 +146,10 @@ const Edit = () => {
                 typeof exifs[0]?.ExposureTime === 'number'
                   ? Math.floor(1 / exifs[0].ExposureTime)
                   : null,
-              hiddenLeftInfo: false,
-              hiddenRightInfo: false,
+              hiddenLeftInfo:
+                defaultParams.current?.[0].info?.hiddenLeftInfo || false,
+              hiddenRightInfo:
+                defaultParams.current?.[0].info?.hiddenRightInfo || false,
             }
           : { ...(defaultParams.current?.[0]?.info || {}) },
         imgUrl: e.target?.result as string,
@@ -144,44 +187,44 @@ const Edit = () => {
     });
   };
 
-  const exifBaseInfoList: ExifBaseInfoListItem[] = useMemo(() => {
-    return [
-      {
-        name: '镜头参数',
-        children: [
-          {
-            name: 'FocalLength',
-            label: '焦距：',
-          },
-          {
-            name: 'FNumber',
-            label: '光圈：',
-          },
-          {
-            name: 'ExposureTime',
-            label: '快门：',
-          },
-          {
-            name: 'ISO',
-            label: 'ISO：',
-          },
-        ],
-      },
-      {
-        name: '相机参数',
-        children: [
-          {
-            name: 'Model',
-            label: '相机：',
-          },
-          {
-            name: 'LensModel',
-            label: '镜头：',
-          },
-        ],
-      },
-    ];
-  }, []);
+  // const exifBaseInfoList: ExifBaseInfoListItem[] = useMemo(() => {
+  //   return [
+  //     {
+  //       name: '镜头参数',
+  //       children: [
+  //         {
+  //           name: 'FocalLength',
+  //           label: '焦距：',
+  //         },
+  //         {
+  //           name: 'FNumber',
+  //           label: '光圈：',
+  //         },
+  //         {
+  //           name: 'ExposureTime',
+  //           label: '快门：',
+  //         },
+  //         {
+  //           name: 'ISO',
+  //           label: 'ISO：',
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       name: '相机参数',
+  //       children: [
+  //         {
+  //           name: 'Model',
+  //           label: '相机：',
+  //         },
+  //         {
+  //           name: 'LensModel',
+  //           label: '镜头：',
+  //         },
+  //       ],
+  //     },
+  //   ];
+  // }, []);
 
   const logoList = useMemo(() => {
     return Object.keys(logoMap).map((item) => ({

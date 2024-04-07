@@ -6,6 +6,7 @@ import logoSvg from '/vite.svg';
 import { useHistory } from 'react-router-dom';
 import { clearDbEditInfo } from './db/utils';
 import { Icon } from '@iconify-icon/react';
+import DefaultValue from './components/defaultValue/defaultValue';
 
 function App() {
   const history = useHistory();
@@ -38,6 +39,7 @@ function App() {
         ></Icon>
       </div>
       {renderRoutes(routes)}
+      <DefaultValue />
       <div
         id="message-wrapper"
         style={{ zIndex: 51 }}
