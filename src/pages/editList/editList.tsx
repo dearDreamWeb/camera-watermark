@@ -61,7 +61,15 @@ function EditList() {
 
   return (
     <div className="font-bold w-full min-h-screen px-8 pt-20 pb-16">
-      <div className="flex justify-center items-center mb-12">
+      <div className="flex justify-center items-center mb-12 relative">
+        <div className="absolute left-0 top-0">
+          <div>
+            背景色为<span>白色</span>代表有exif信息；
+          </div>
+          <div>
+            背景色为<span>黄色</span>代表无exif信息，采用默认值
+          </div>
+        </div>
         <Button
           onClick={async () => {
             for (let i = 0; i < editRefs.length; i++) {
@@ -76,7 +84,9 @@ function EditList() {
         {list.map((item: any, index: number) => (
           <div
             key={index}
-            className="group w-80 h-80 p-1 bg-white relative flex justify-center items-center mr-8 mb-8 shadow-slate-300"
+            className={`group w-80 h-80 p-1  relative flex justify-center items-center mr-8 mb-8 shadow-slate-300 ${
+              item.exifInfo.noHasExif ? ' bg-yellow-200' : 'bg-white'
+            }`}
           >
             <div className="hidden">
               <EditComponent

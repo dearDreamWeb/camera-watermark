@@ -146,10 +146,8 @@ const Edit = () => {
                 typeof exifs[0]?.ExposureTime === 'number'
                   ? Math.floor(1 / exifs[0].ExposureTime)
                   : null,
-              hiddenLeftInfo:
-                defaultParams.current?.[0].info?.hiddenLeftInfo || false,
-              hiddenRightInfo:
-                defaultParams.current?.[0].info?.hiddenRightInfo || false,
+              hiddenLeftInfo: false,
+              hiddenRightInfo: false,
             }
           : { ...(defaultParams.current?.[0]?.info || {}) },
         imgUrl: e.target?.result as string,

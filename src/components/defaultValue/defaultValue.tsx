@@ -26,16 +26,16 @@ const exifInfoList: ExifBaseInfoListItem[] = [
             getLogoName(((value as string) || '').toLocaleLowerCase())
           ],
       },
-      {
-        name: 'hiddenLeftInfo',
-        label: '隐藏左边信息：',
-        render: (value) => (value ? '是' : '否'),
-      },
-      {
-        name: 'hiddenRightInfo',
-        label: '隐藏右边信息：',
-        render: (value) => (value ? '是' : '否'),
-      },
+      // {
+      //   name: 'hiddenLeftInfo',
+      //   label: '隐藏左边信息：',
+      //   render: (value) => (value ? '是' : '否'),
+      // },
+      // {
+      //   name: 'hiddenRightInfo',
+      //   label: '隐藏右边信息：',
+      //   render: (value) => (value ? '是' : '否'),
+      // },
     ],
   },
 ];

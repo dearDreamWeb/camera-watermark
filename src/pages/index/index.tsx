@@ -169,12 +169,13 @@ const Index = () => {
                     typeof exifs?.ExposureTime === 'number'
                       ? Math.floor(1 / exifs.ExposureTime)
                       : null,
-                  hiddenLeftInfo:
-                    defaultParams.current?.[0].info?.hiddenLeftInfo || false,
-                  hiddenRightInfo:
-                    defaultParams.current?.[0].info?.hiddenRightInfo || false,
+                  hiddenLeftInfo: false,
+                  hiddenRightInfo: false,
                 }
-              : { ...(defaultParams.current?.[0]?.info || {}) },
+              : {
+                  ...(defaultParams.current?.[0]?.info || {}),
+                  noHasExif: true,
+                },
             imgUrl: e.target?.result as string,
           });
         } catch (error) {
