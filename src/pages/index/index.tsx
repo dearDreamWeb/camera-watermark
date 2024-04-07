@@ -110,7 +110,7 @@ const Index = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
 
-  useEffect(() => {
+  const updateStorage = () => {
     const data = localStorage.getItem('defaultParams');
     if (!data) {
       const list = [{ key: +new Date(), info: defaultData }];
@@ -119,12 +119,18 @@ const Index = () => {
     } else {
       defaultParams.current = JSON.parse(data || '[]');
     }
+  };
+
+  useEffect(() => {
+    updateStorage();
+    window.addEventListener('updateStorage', updateStorage);
     if (!fileRef.current) {
       return;
     }
     fileRef.current.addEventListener('change', imgChange);
     return () => {
       fileRef.current?.removeEventListener('change', imgChange);
+      window.removeEventListener('updateStorage', updateStorage);
     };
   }, []);
 
