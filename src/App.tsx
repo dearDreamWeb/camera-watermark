@@ -7,6 +7,9 @@ import { useHistory } from 'react-router-dom';
 import { clearDbEditInfo } from './db/utils';
 import { Icon } from '@iconify-icon/react';
 import DefaultValue from './components/defaultValue/defaultValue';
+import message from './components/message/message';
+
+const VERSION = 1;
 
 function App() {
   const history = useHistory();
@@ -16,6 +19,14 @@ function App() {
       history.push('/');
       clearDbEditInfo();
     });
+    const versionStorage = localStorage.getItem('version');
+    if (Number(versionStorage) !== VERSION) {
+      message.info('系統更新，需要刷新一下').then(() => {
+        localStorage.clear();
+        location.reload();
+      });
+      return;
+    }
   }, []);
 
   return (

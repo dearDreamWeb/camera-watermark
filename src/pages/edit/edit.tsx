@@ -20,6 +20,15 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Worker from '../../workers/index?worker';
 import message from '@/components/message/message';
 import { useLocation, useHistory } from 'react-router-dom';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export type ExifBaseType =
   | 'FocalLength'
@@ -32,7 +41,16 @@ export type ExifBaseType =
   | 'LensModel'
   | 'Make'
   | 'hiddenLeftInfo'
-  | 'hiddenRightInfo';
+  | 'hiddenRightInfo'
+  | 'FontFamily';
+
+export const FontFamilyList = [
+  'Times New Roman',
+  'Arial',
+  'Courier',
+  'New Georgia',
+  'Verdana',
+];
 
 interface ExifBaseInfoListChildrenItem {
   name: ExifBaseType;
@@ -77,6 +95,15 @@ export const exifBaseInfoList: ExifBaseInfoListItem[] = [
       {
         name: 'LensModel',
         label: '镜头：',
+      },
+    ],
+  },
+  {
+    name: '样式',
+    children: [
+      {
+        name: 'FontFamily',
+        label: '字体：',
       },
     ],
   },
@@ -288,6 +315,28 @@ const Edit = () => {
                     value={imgInfo?.exifInfo?.[item.name] || '0'}
                     onChange={(e) => changeExif(item.name, e.target.value)}
                   />
+                ) : index === 2 && item.name === 'FontFamily' ? (
+                  <Select
+                    defaultValue={
+                      imgInfo?.exifInfo?.FontFamily || FontFamilyList[0]
+                    }
+                    onValueChange={(value: string) =>
+                      changeExif(item.name, value)
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select a fruit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {FontFamilyList.map((item) => (
+                          <SelectItem key={item} value={item}>
+                            {item}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <Input
                     placeholder="请输入参数"

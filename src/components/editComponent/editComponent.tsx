@@ -44,7 +44,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
     const [previewImg, setPreviewImg] = useState('');
 
     useEffect(() => {
-      setExifData(exifInfo);
+      setExifData({ ...exifInfo });
     }, [exifInfo]);
 
     useEffect(() => {
@@ -130,6 +130,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       if (!exifData?.hiddenLeftInfo) {
         // 相机
         const modelText = new fabric.IText(exifData?.Model || '', {
+          fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 20 : 16,
           fill: '#333',
           fontWeight: 'bold',
@@ -139,6 +140,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
 
         // 镜头
         const LensModelText = new fabric.IText(exifData?.LensModel || '', {
+          fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 12,
           fill: '#666',
           fontWeight: 'bold',
@@ -170,6 +172,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
 
       if (!exifData?.hiddenRightInfo) {
         const rightGroupStyle: fabric.ITextOptions = {
+          fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 14,
           fill: '#333',
           fontWeight: 'bold',

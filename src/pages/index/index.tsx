@@ -177,6 +177,9 @@ const Index = () => {
                       : null,
                   hiddenLeftInfo: false,
                   hiddenRightInfo: false,
+                  FontFamily:
+                    defaultParams.current?.[0]?.info?.FontFamily ||
+                    'Times New Roman',
                 }
               : {
                   ...(defaultParams.current?.[0]?.info || {}),

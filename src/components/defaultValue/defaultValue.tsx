@@ -9,6 +9,7 @@ import { Button } from '../ui/button';
 import {
   ExifBaseInfoListItem,
   ExifBaseType,
+  FontFamilyList,
   exifBaseInfoList,
 } from '@/pages/edit/edit';
 import { getLogo, getLogoName, logoMap, logoNameMap } from '@/constants';
@@ -23,6 +24,14 @@ import { Input, InputNumber } from '../ui/input';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import message from '../message/message';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 
 const exifInfoList: ExifBaseInfoListItem[] = [
   ...exifBaseInfoList,
@@ -147,6 +156,29 @@ function DefaultValue() {
                             };
                           }}
                         />
+                      ) : index === 2 && item.name === 'FontFamily' ? (
+                        <Select
+                          defaultValue={preParamsRef.current?.[item.name]}
+                          onValueChange={(value) => {
+                            preParamsRef.current = {
+                              ...preParamsRef.current,
+                              [item.name]: value,
+                            };
+                          }}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select a fruit" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {FontFamilyList.map((item) => (
+                                <SelectItem key={item} value={item}>
+                                  {item}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
                       ) : index === 1 ? (
                         <Input
                           placeholder="请输入参数"
