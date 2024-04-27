@@ -76,6 +76,18 @@ function DefaultValue() {
     setText('修改');
   };
 
+  const onChangeValue = (name: string, value: string) => {
+    preParamsRef.current = {
+      ...preParamsRef.current,
+      [name]: value,
+    };
+    const locationParams = JSON.parse(
+      localStorage.getItem('defaultParams') || '[]'
+    );
+    locationParams[0].info = preParamsRef.current;
+    localStorage.setItem('defaultParams', JSON.stringify(locationParams));
+  };
+
   const logoList = useMemo(() => {
     return Object.keys(logoMap).map((item) => ({
       value: item,
@@ -149,22 +161,16 @@ function DefaultValue() {
                           defaultValue={
                             preParamsRef.current?.[item.name] || '0'
                           }
-                          onChange={(e) => {
-                            preParamsRef.current = {
-                              ...preParamsRef.current,
-                              [item.name]: e.target.value,
-                            };
-                          }}
+                          onChange={(e) =>
+                            onChangeValue(item.name, e.target.value)
+                          }
                         />
                       ) : index === 2 && item.name === 'FontFamily' ? (
                         <Select
                           defaultValue={preParamsRef.current?.[item.name]}
-                          onValueChange={(value) => {
-                            preParamsRef.current = {
-                              ...preParamsRef.current,
-                              [item.name]: value,
-                            };
-                          }}
+                          onValueChange={(value) =>
+                            onChangeValue(item.name, value)
+                          }
                         >
                           <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Select a fruit" />
@@ -183,24 +189,18 @@ function DefaultValue() {
                         <Input
                           placeholder="请输入参数"
                           defaultValue={preParamsRef.current?.[item.name] || ''}
-                          onChange={(e) => {
-                            preParamsRef.current = {
-                              ...preParamsRef.current,
-                              [item.name]: e.target.value,
-                            };
-                          }}
+                          onChange={(e) =>
+                            onChangeValue(item.name, e.target.value)
+                          }
                         />
                       ) : (
                         <RadioGroup
                           defaultValue={(
                             preParamsRef.current?.[item.name] || ''
                           ).toLocaleLowerCase()}
-                          onValueChange={(value: string) => {
-                            preParamsRef.current = {
-                              ...preParamsRef.current,
-                              [item.name]: value,
-                            };
-                          }}
+                          onValueChange={(value: string) =>
+                            onChangeValue(item.name, value)
+                          }
                           className="flex"
                         >
                           {logoList.map((item) => (
