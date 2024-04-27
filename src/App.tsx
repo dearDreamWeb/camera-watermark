@@ -23,6 +23,7 @@ function App() {
     if (Number(versionStorage) !== VERSION) {
       message.info('系統更新，需要刷新一下').then(() => {
         localStorage.clear();
+        localStorage.setItem('version', VERSION.toString());
         location.reload();
       });
       return;
