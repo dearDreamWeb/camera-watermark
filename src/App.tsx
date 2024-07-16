@@ -21,11 +21,15 @@ function App() {
     });
     const versionStorage = localStorage.getItem('version');
     if (Number(versionStorage) !== VERSION) {
-      message.info('系統更新，需要刷新一下').then(() => {
-        localStorage.clear();
+      if (versionStorage === null) {
         localStorage.setItem('version', VERSION.toString());
-        location.reload();
-      });
+      } else {
+        message.info('系統更新，需要刷新一下').then(() => {
+          localStorage.clear();
+          localStorage.setItem('version', VERSION.toString());
+          location.reload();
+        });
+      }
       return;
     }
   }, []);
