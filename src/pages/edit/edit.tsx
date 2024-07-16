@@ -5,7 +5,7 @@ import exifr from 'exifr';
 import EditComponent, {
   ForWardRefHandler,
 } from '@/components/editComponent/editComponent';
-import { getLogo, logoMap } from '@/constants';
+import { getLogo, logoMap, threeLogoMap } from '@/constants';
 import { Button } from '@/components/ui/button';
 import { Input, InputNumber } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -252,11 +252,13 @@ const Edit = () => {
   // }, []);
 
   const logoList = useMemo(() => {
-    return Object.keys(logoMap).map((item) => ({
-      value: item,
-      url: logoMap[item],
-    }));
-  }, [logoMap]);
+    return Object.entries({ ...logoMap, ...threeLogoMap }).map(
+      ([key, value]) => ({
+        value: key,
+        url: value,
+      })
+    );
+  }, [logoMap, threeLogoMap]);
 
   const saveDefaultParams = () => {
     message.success('保存成功');
@@ -267,7 +269,7 @@ const Edit = () => {
   };
 
   return (
-    <div className="flex min-h-screen pt-24 pb-16 w-screen overflow-x-auto px-4">
+    <div className="flex min-h-screen pt-24 pb-16 w-screen overflow-x-auto px-4 justify-center">
       <div className="flex flex-col justify-center mr-8">
         <input type="file" ref={fileRef} accept="image/*" className="hidden" />
         <Button onClick={uploadImg}>更换图片</Button>
@@ -297,7 +299,7 @@ const Edit = () => {
           <img
             className="h-12 m-auto"
             src={
-              logoMap[
+              { ...logoMap, ...threeLogoMap }[
                 getLogo((imgInfo?.exifInfo?.Make || '').toLocaleLowerCase())
               ]
             }
@@ -401,13 +403,13 @@ const Edit = () => {
                   exifInfo: { ...imgInfo.exifInfo, Make: value },
                 })
               }
-              className="flex"
+              className="grid grid-cols-5"
             >
               {logoList.map((item) => (
                 <div className="flex items-center space-x-2" key={item.value}>
                   <RadioGroupItem value={item.value} id={item.value} />
                   <Label htmlFor={item.value}>
-                    <img src={item.url} />
+                    <img src={item.url} style={{ height: '27px' }} />
                   </Label>
                 </div>
               ))}

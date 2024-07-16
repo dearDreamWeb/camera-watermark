@@ -11,7 +11,7 @@ import {
   initAligningGuidelines,
   initCenteringGuidelines,
 } from '@/utils/fabricPlugins';
-import { getLogo, logoMap } from '@/constants';
+import { getLogo, logoMap, threeLogoMap } from '@/constants';
 import message from '../message/message';
 
 const LOGOHEIGHT = 60;
@@ -157,7 +157,9 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       }
 
       const logoImg = await loadImage(
-        logoMap[getLogo((exifData?.Make || '').toLocaleLowerCase())]
+        { ...logoMap, ...threeLogoMap }[
+          getLogo((exifData?.Make || '').toLocaleLowerCase())
+        ]
       );
       (logoImg as any).customType = 'logoImg';
       logoImg.scale(0.15);

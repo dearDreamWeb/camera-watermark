@@ -12,7 +12,13 @@ import {
   FontFamilyList,
   exifBaseInfoList,
 } from '@/pages/edit/edit';
-import { getLogo, getLogoName, logoMap, logoNameMap } from '@/constants';
+import {
+  getLogo,
+  getLogoName,
+  logoMap,
+  logoNameMap,
+  threeLogoMap,
+} from '@/constants';
 import {
   Dialog,
   DialogContent,
@@ -89,10 +95,12 @@ function DefaultValue() {
   };
 
   const logoList = useMemo(() => {
-    return Object.keys(logoMap).map((item) => ({
-      value: item,
-      url: logoMap[item],
-    }));
+    return Object.entries({ ...logoMap, ...threeLogoMap }).map(
+      ([key, value]) => ({
+        value: key,
+        url: value,
+      })
+    );
   }, [logoMap]);
 
   const saveParamsHandler = () => {
@@ -201,7 +209,7 @@ function DefaultValue() {
                           onValueChange={(value: string) =>
                             onChangeValue(item.name, value)
                           }
-                          className="flex"
+                          className="grid grid-cols-5"
                         >
                           {logoList.map((item) => (
                             <div
@@ -211,9 +219,13 @@ function DefaultValue() {
                               <RadioGroupItem
                                 value={item.value}
                                 id={item.value}
+                                className="w-4 h-4"
                               />
                               <Label htmlFor={item.value}>
-                                <img src={item.url} />
+                                <img
+                                  src={item.url}
+                                  style={{ height: '27px' }}
+                                />
                               </Label>
                             </div>
                           ))}
