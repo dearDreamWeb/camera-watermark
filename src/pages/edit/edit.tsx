@@ -269,7 +269,7 @@ const Edit = () => {
   };
 
   return (
-    <div className="flex min-h-screen pt-24 pb-16 w-screen overflow-x-auto px-4 justify-center">
+    <div className="flex min-h-screen pt-24 pb-16 w-full overflow-x-auto px-4 justify-center">
       <div className="flex flex-col justify-center mr-8">
         <input type="file" ref={fileRef} accept="image/*" className="hidden" />
         <Button onClick={uploadImg}>更换图片</Button>
