@@ -13,6 +13,13 @@ export const loadImage = async (url: string): Promise<fabric.Image> => {
   });
 };
 
+/**克隆 */
+export const clonePromise = (fabricObject: fabric.Object) => {
+  return new Promise((resolve) => {
+    fabricObject.clone((cloned: fabric.Object) => resolve(cloned));
+  });
+};
+
 /**
  * 将url文件下载到本地
  * @param fileUrl {String} 文件链接

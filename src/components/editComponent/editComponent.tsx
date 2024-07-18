@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react';
 import { fabric } from 'fabric';
-import { loadImage } from '@/utils';
+import { clonePromise, loadImage } from '@/utils';
 import {
   initAligningGuidelines,
   initCenteringGuidelines,
@@ -95,7 +95,9 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         });
 
         img.selectable = false;
+        mainCanvas.current?.clear();
         mainCanvas.current!.add(img);
+        mainCanvas.current?.renderAll();
       } catch (error) {
         message.error('图片加载失败');
       }
@@ -161,6 +163,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
           getLogo((exifData?.Make || '').toLocaleLowerCase())
         ]
       );
+
       (logoImg as any).customType = 'logoImg';
       logoImg.scale(0.15);
       console.log('logoImg', logoImg);
@@ -170,6 +173,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       logoImg.left = Math.floor(
         (logoCanvas.current?.width! - logoImg.width! * logoImg.scaleX!) / 2
       );
+      logoImg.selectable = true;
       logoCanvas.current?.add(logoImg);
 
       if (!exifData?.hiddenRightInfo) {
@@ -227,9 +231,9 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         logoCanvas.current?.add(rightGroup);
       }
 
-      logoCanvas.current?.getObjects()!.forEach((obj) => {
-        obj.selectable = false;
-      });
+      // logoCanvas.current?.getObjects()!.forEach((obj) => {
+      //   obj.selectable = true;
+      // });
     };
 
     useImperativeHandle(ref, () => ({
@@ -241,15 +245,22 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
     ): Promise<string> => {
       downloadCanvas.current?.clear();
       downloadCanvas.current!.backgroundColor! = '#fff';
-      const mainCanvasObjects = mainCanvas.current?.getObjects()!;
-      const logoCanvasObjects = logoCanvas.current?.getObjects()!;
       const width = mainCanvas.current?.width!;
       const height = mainCanvas.current?.height! + logoCanvas.current?.height!;
       downloadCanvas.current?.setDimensions({ width, height });
 
+      const mainCanvasObjects = await (Promise.all(
+        mainCanvas.current!.getObjects()!.map((item) => clonePromise(item))
+      ) as Promise<fabric.Object[]>);
+
+      const logoCanvasObjects = await (Promise.all(
+        logoCanvas.current!.getObjects()!.map((item) => clonePromise(item))
+      ) as Promise<fabric.Object[]>);
+
       mainCanvasObjects.forEach((obj) => {
         downloadCanvas.current?.add(obj);
       });
+
       logoCanvasObjects.forEach((obj) => {
         obj.top! += mainCanvas.current?.height!;
         downloadCanvas.current?.add(obj);
@@ -267,11 +278,6 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
           ? params.multiplier
           : Math.max(mainCanvasObjects[0].width! / MAXWIDTH, 1),
       })!;
-
-      logoCanvasObjects.forEach((obj) => {
-        obj.top! -= mainCanvas.current?.height!;
-      });
-      logoCanvas.current?.renderAll();
 
       return imageData;
     };
