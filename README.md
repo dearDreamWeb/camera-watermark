@@ -22,6 +22,7 @@
 - 自定义：可自定义设置图片的参数数据。
 - 批量导图：支持批量导入导出多张图片。
 - 免费：无付费功能
+- 自由度高：允许编辑底部元素位置和缩放
 
 # 👀 示例效果预览
 
@@ -34,6 +35,9 @@
 ## 添加水印之后
 
 <img width='500px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/202404022139230.png'/>
+
+## 底部可进行自由编辑
+<img width='500px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_3.png'/>
 
 # 🧰 功能
 
