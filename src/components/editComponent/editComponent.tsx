@@ -81,10 +81,13 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
             MAXWIDTH / img.width!,
             MAXHEIGHT / img.height!
           );
-          img.scale(scaleFactor);
+          img.scale(
+            scaleFactor % 1 === 0 ? scaleFactor : Number(scaleFactor.toFixed(2))
+          );
         }
         const newWidth = img.width! * img.scaleX!;
         const newHeight = img.height! * img.scaleY!;
+
         mainCanvas.current!.setDimensions({
           width: newWidth,
           height: newHeight,
@@ -267,7 +270,6 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       });
 
       downloadCanvas.current?.renderAll();
-      console.log('----logoCanvasObjects', logoCanvasObjects);
       // debugger;
       const imageData = downloadCanvas.current?.toDataURL({
         format: 'png',
