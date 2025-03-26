@@ -1,10 +1,10 @@
 import {
   forwardRef,
+  memo,
   useEffect,
   useImperativeHandle,
   useRef,
   useState,
-  memo,
 } from 'react';
 import { fabric } from 'fabric';
 import { clonePromise, loadImage } from '@/utils';
@@ -34,7 +34,7 @@ export interface ForWardRefHandler {
   exportImageUrl: (props: { multiplier?: number }) => Promise<string>;
 }
 
-const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
+const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
   (props, ref) => {
     const { file, exifInfo, imgUrl, onPreviewImg } = props;
     const mainCanvas = useRef<fabric.Canvas>();
@@ -75,6 +75,8 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
 
       try {
         const img = await loadImage(imgUrl);
+        const imgUpper = await loadImage(imgUrl);
+
         cacheImgUrl.current = imgUrl;
 
         if (img.width! > MAXWIDTH || img.height! > MAXHEIGHT) {
@@ -84,6 +86,11 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
           );
           img.scale(
             scaleFactor % 1 === 0 ? scaleFactor : Number(scaleFactor.toFixed(2))
+          );
+          imgUpper.scale(
+            (scaleFactor % 1 === 0
+              ? scaleFactor
+              : Number(scaleFactor.toFixed(2))) * 0.9
           );
         }
         const newWidth = img.width! * img.scaleX!;
@@ -99,8 +106,28 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         });
 
         img.selectable = false;
+        fabric.textureSize = Math.max(img.width!, img.height!);
+        img.objectCaching = true;
+        img.filters = [new fabric.Image.filters.Blur({ blur: 0.5 })];
+        img.applyFilters();
         mainCanvas.current?.clear();
         mainCanvas.current!.add(img);
+
+        // 定义阴影
+        const shadow = new fabric.Shadow({
+          color: 'rgba(0,0,0,0.8)',
+          blur: 100,
+          offsetX: 0,
+          offsetY: 10,
+        });
+        imgUpper.left =
+          (mainCanvas.current!.width! - imgUpper.width! * imgUpper.scaleX!) / 2;
+        imgUpper.top =
+          (mainCanvas.current!.height! - imgUpper.height! * imgUpper.scaleY!) /
+          2;
+
+        imgUpper.set({ shadow, objectCaching: true });
+        mainCanvas.current!.add(imgUpper);
         mainCanvas.current?.renderAll();
       } catch (error) {
         message.error('图片加载失败');
@@ -304,4 +331,4 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
     );
   }
 );
-export default memo(EditComponent);
+export default memo(EditComponentBlur);

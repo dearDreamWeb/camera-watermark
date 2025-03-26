@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import EditComponentBlur from '@/components/editComponentBlur/editComponentBlur';
 
 export type ExifBaseType =
   | 'FocalLength'
@@ -277,7 +278,13 @@ const Edit = () => {
           下载
         </Button>
       </div>
-      <EditComponent
+      {/* <EditComponent
+        ref={editRef}
+        file={imgInfo.file}
+        exifInfo={imgInfo.exifInfo}
+        imgUrl={imgInfo.imgUrl}
+      /> */}
+      <EditComponentBlur
         ref={editRef}
         file={imgInfo.file}
         exifInfo={imgInfo.exifInfo}
