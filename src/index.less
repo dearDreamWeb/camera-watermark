@@ -33,7 +33,13 @@ body {
   font-size: 14px;
   font-family: Verdana, Arial, Helvetica, sans-serif;
   color: #333333;
-  background: #FFFFFF;
+  background: #ffffff;
+}
+
+body[data-scroll-locked] {
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
 }
 
 td,
@@ -94,7 +100,7 @@ html {
   clear: both;
   height: 0;
   visibility: hidden;
-  content: ".";
+  content: '.';
 }
 
 .clearfix {
