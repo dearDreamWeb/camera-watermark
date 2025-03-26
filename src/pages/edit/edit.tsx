@@ -43,6 +43,7 @@ export type ExifBaseType =
   | 'Make'
   | 'hiddenLeftInfo'
   | 'hiddenRightInfo'
+  | 'BgBlur'
   | 'FontFamily';
 
 export const FontFamilyList = [
@@ -56,6 +57,7 @@ export const FontFamilyList = [
 interface ExifBaseInfoListChildrenItem {
   name: ExifBaseType;
   label: string;
+  default?: string | number;
   render?: (value: string | number) => React.ReactNode;
 }
 
@@ -105,6 +107,11 @@ export const exifBaseInfoList: ExifBaseInfoListItem[] = [
       {
         name: 'FontFamily',
         label: '字体：',
+      },
+      {
+        name: 'BgBlur',
+        label: '背景模糊度：',
+        default: 5,
       },
     ],
   },
@@ -176,6 +183,7 @@ const Edit = () => {
                   : null,
               hiddenLeftInfo: false,
               hiddenRightInfo: false,
+              BgBlur: 5,
             }
           : { ...(defaultParams.current?.[0]?.info || {}) },
         imgUrl: e.target?.result as string,
@@ -346,6 +354,14 @@ const Edit = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                ) : index === 2 && item.name === 'BgBlur' ? (
+                  <InputNumber
+                    placeholder="请输入参数"
+                    max={10}
+                    min={0}
+                    value={imgInfo?.exifInfo?.[item.name] || 0}
+                    onChange={(e) => changeExif(item.name, e.target.value)}
+                  />
                 ) : (
                   <Input
                     placeholder="请输入参数"

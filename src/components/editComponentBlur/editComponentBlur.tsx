@@ -106,9 +106,14 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
         });
 
         img.selectable = false;
+        imgUpper.selectable = false;
         fabric.textureSize = Math.max(img.width!, img.height!);
         img.objectCaching = true;
-        img.filters = [new fabric.Image.filters.Blur({ blur: 0.5 })];
+        img.filters = [
+          new fabric.Image.filters.Blur({
+            blur: (exifData?.BgBlur || 5) * 0.1,
+          }),
+        ];
         img.applyFilters();
         mainCanvas.current?.clear();
         mainCanvas.current!.add(img);
@@ -118,7 +123,7 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
           color: 'rgba(0,0,0,0.8)',
           blur: 100,
           offsetX: 0,
-          offsetY: 10,
+          offsetY: 0,
         });
         imgUpper.left =
           (mainCanvas.current!.width! - imgUpper.width! * imgUpper.scaleX!) / 2;
