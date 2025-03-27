@@ -54,9 +54,16 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       const fabricDownloadCanvas = new fabric.Canvas('downloadCanvas');
       mainCanvas.current = fabricCanvas;
       logoCanvas.current = fabricLogoCanvas;
+      if (exifData?.hiddenBottomInfo) {
+        // TO DO dom节点删不掉，要处理一下
+        logoCanvas.current.dispose();
+        initAligningGuidelines(fabricCanvas);
+        initCenteringGuidelines(fabricCanvas);
+      } else {
+        initAligningGuidelines(fabricLogoCanvas);
+        initCenteringGuidelines(fabricLogoCanvas);
+      }
       downloadCanvas.current = fabricDownloadCanvas;
-      initAligningGuidelines(fabricLogoCanvas);
-      initCenteringGuidelines(fabricLogoCanvas);
     }, []);
 
     const initCanvas = async () => {
@@ -127,9 +134,13 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
         });
         imgUpper.left =
           (mainCanvas.current!.width! - imgUpper.width! * imgUpper.scaleX!) / 2;
-        imgUpper.top =
-          (mainCanvas.current!.height! - imgUpper.height! * imgUpper.scaleY!) /
-          2;
+        imgUpper.top = exifData?.hiddenBottomInfo
+          ? mainCanvas.current!.height! -
+            imgUpper.height! * imgUpper.scaleY! -
+            LOGOHEIGHT
+          : (mainCanvas.current!.height! -
+              imgUpper.height! * imgUpper.scaleY!) /
+            2;
 
         imgUpper.set({ shadow, objectCaching: true });
         mainCanvas.current!.add(imgUpper);
@@ -156,21 +167,23 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
 
     const renderEditContent = async () => {
       logoCanvas.current!.backgroundColor! = '#fff';
-      console.log(111, exifData);
       if (
         !exifData?.Make ||
         !getLogo((exifData?.Make || '').toLocaleLowerCase())
       ) {
         return;
       }
-      console.log('exifData', exifData);
+      // console.log('exifData', exifData);
+
+      const fontColor = exifData?.hiddenBottomInfo ? '#fff' : '#333';
+      const subFontColor = exifData?.hiddenBottomInfo ? '#fff' : '#666';
 
       if (!exifData?.hiddenLeftInfo) {
         // 相机
         const modelText = new fabric.IText(exifData?.Model || '', {
           fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 20 : 16,
-          fill: '#333',
+          fill: fontColor,
           fontWeight: 'bold',
         });
         modelText.left = 0;
@@ -180,7 +193,7 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
         const LensModelText = new fabric.IText(exifData?.LensModel || '', {
           fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 12,
-          fill: '#666',
+          fill: subFontColor,
           fontWeight: 'bold',
         });
         LensModelText.left = modelText.left;
@@ -190,8 +203,25 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
           left: 12,
           customType: 'leftGroup',
         } as any);
-        leftGroup.top = Math.floor((LOGOHEIGHT - leftGroup.height!) / 2);
-        logoCanvas.current?.add(leftGroup);
+        leftGroup.set({
+          lockRotation: true,
+          top: Math.floor((LOGOHEIGHT - leftGroup.height!) / 2),
+        });
+
+        if (exifData?.hiddenBottomInfo) {
+          leftGroup.set({
+            left: Math.floor(mainCanvas.current?.width! * 0.1) + 12,
+            top: Math.floor(
+              mainCanvas.current?.height! -
+                LOGOHEIGHT +
+                (LOGOHEIGHT - leftGroup.height!) / 2
+            ),
+          });
+
+          mainCanvas.current?.add(leftGroup);
+        } else {
+          logoCanvas.current?.add(leftGroup);
+        }
       }
 
       const logoImg = await loadImage(
@@ -201,22 +231,38 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       );
 
       (logoImg as any).customType = 'logoImg';
+
       logoImg.scale(0.15);
-      console.log('logoImg', logoImg);
-      logoImg.top = Math.floor(
-        (LOGOHEIGHT - logoImg.height! * logoImg.scaleY!) / 2
-      );
-      logoImg.left = Math.floor(
-        (logoCanvas.current?.width! - logoImg.width! * logoImg.scaleX!) / 2
-      );
-      logoImg.selectable = true;
-      logoCanvas.current?.add(logoImg);
+      // console.log('logoImg', logoImg);
+      logoImg.set({
+        selectable: true,
+        lockRotation: true,
+        top: Math.floor((LOGOHEIGHT - logoImg.height! * logoImg.scaleY!) / 2),
+        left: Math.floor(
+          (logoCanvas.current?.width! - logoImg.width! * logoImg.scaleX!) / 2
+        ),
+      });
+      if (exifData?.hiddenBottomInfo) {
+        logoImg.set({
+          top: Math.floor(
+            mainCanvas.current?.height! -
+              LOGOHEIGHT +
+              (LOGOHEIGHT - logoImg.height! * logoImg.scaleY!) / 2
+          ),
+          left: Math.floor(
+            (mainCanvas.current?.width! - logoImg.width! * logoImg.scaleX!) / 2
+          ),
+        });
+        mainCanvas.current?.add(logoImg);
+      } else {
+        logoCanvas.current?.add(logoImg);
+      }
 
       if (!exifData?.hiddenRightInfo) {
         const rightGroupStyle: fabric.ITextOptions = {
           fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 14,
-          fill: '#333',
+          fill: fontColor,
           fontWeight: 'bold',
         };
 
@@ -260,16 +306,28 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
             customType: 'leftGroup',
           } as any
         );
-        rightGroup.top = Math.floor((LOGOHEIGHT - rightGroup.height!) / 2);
-        rightGroup.left = Math.floor(
-          logoCanvas.current?.width! - rightGroup.width! - 12
-        );
-        logoCanvas.current?.add(rightGroup);
-      }
+        rightGroup.set({
+          lockRotation: true,
+          top: Math.floor((LOGOHEIGHT - rightGroup.height!) / 2),
+          left: Math.floor(logoCanvas.current?.width! - rightGroup.width! - 12),
+        });
 
-      // logoCanvas.current?.getObjects()!.forEach((obj) => {
-      //   obj.selectable = true;
-      // });
+        if (exifData?.hiddenBottomInfo) {
+          rightGroup.set({
+            top: Math.floor(
+              mainCanvas.current?.height! -
+                LOGOHEIGHT +
+                (LOGOHEIGHT - rightGroup.height!) / 2
+            ),
+            left: Math.floor(
+              mainCanvas.current?.width! * 0.9 - rightGroup.width! - 12
+            ),
+          });
+          mainCanvas.current?.add(rightGroup);
+        } else {
+          logoCanvas.current?.add(rightGroup);
+        }
+      }
     };
 
     useImperativeHandle(ref, () => ({
@@ -282,25 +340,28 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       downloadCanvas.current?.clear();
       downloadCanvas.current!.backgroundColor! = '#fff';
       const width = mainCanvas.current?.width!;
-      const height = mainCanvas.current?.height! + logoCanvas.current?.height!;
+      const height =
+        mainCanvas.current?.height! +
+        (exifData?.hiddenBottomInfo ? 0 : logoCanvas.current?.height!);
       downloadCanvas.current?.setDimensions({ width, height });
 
       const mainCanvasObjects = await (Promise.all(
         mainCanvas.current!.getObjects()!.map((item) => clonePromise(item))
       ) as Promise<fabric.Object[]>);
 
-      const logoCanvasObjects = await (Promise.all(
-        logoCanvas.current!.getObjects()!.map((item) => clonePromise(item))
-      ) as Promise<fabric.Object[]>);
-
       mainCanvasObjects.forEach((obj) => {
         downloadCanvas.current?.add(obj);
       });
 
-      logoCanvasObjects.forEach((obj) => {
-        obj.top! += mainCanvas.current?.height!;
-        downloadCanvas.current?.add(obj);
-      });
+      if (!exifData?.hiddenBottomInfo) {
+        const logoCanvasObjects = await (Promise.all(
+          logoCanvas.current!.getObjects()!.map((item) => clonePromise(item))
+        ) as Promise<fabric.Object[]>);
+        logoCanvasObjects.forEach((obj) => {
+          obj.top! += mainCanvas.current?.height!;
+          downloadCanvas.current?.add(obj);
+        });
+      }
 
       downloadCanvas.current?.renderAll();
       // debugger;
@@ -327,7 +388,13 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       >
         <div>
           <canvas id="mainCanvas" width={MAXWIDTH} height={300}></canvas>
-          <canvas id="logoCanvas" width={MAXWIDTH} height={LOGOHEIGHT}></canvas>
+
+          <canvas
+            id="logoCanvas"
+            className={exifData?.hiddenBottomInfo ? 'hidden' : ''}
+            width={MAXWIDTH}
+            height={LOGOHEIGHT}
+          ></canvas>
           <div className="hidden">
             <canvas id="downloadCanvas"></canvas>
           </div>

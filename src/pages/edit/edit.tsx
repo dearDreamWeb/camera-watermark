@@ -41,6 +41,7 @@ export type ExifBaseType =
   | 'Model'
   | 'LensModel'
   | 'Make'
+  | 'hiddenBottomInfo'
   | 'hiddenLeftInfo'
   | 'hiddenRightInfo'
   | 'BgBlur'
@@ -208,6 +209,7 @@ const Edit = () => {
                   ? Math.floor(1 / exifs[0].ExposureTime)
                   : null,
               hiddenLeftInfo: false,
+              hiddenBottomInfo: false,
               hiddenRightInfo: false,
               BgBlur: 5,
               ShadowBlur: 5,
@@ -522,13 +524,27 @@ const Edit = () => {
           </div>
         ))}
         <div className="mb-8">
+          {templateMode === 'blur' && (
+            <div>
+              <div>取消底部相机信息</div>
+              <Switch
+                className="my-2"
+                checked={imgInfo?.exifInfo?.hiddenBottomInfo}
+                onCheckedChange={(value: boolean) => {
+                  setImgInfo((info) => {
+                    info.exifInfo.hiddenBottomInfo = value;
+                    return JSON.parse(JSON.stringify(info));
+                  });
+                }}
+              />
+            </div>
+          )}
           <div>
             <div>隐藏左边信息</div>
             <Switch
               className="my-2"
               checked={imgInfo?.exifInfo?.hiddenLeftInfo}
               onCheckedChange={(value: boolean) => {
-                console.log('onCheckedChange', value);
                 setImgInfo((info) => {
                   info.exifInfo.hiddenLeftInfo = value;
                   return JSON.parse(JSON.stringify(info));
@@ -542,7 +558,6 @@ const Edit = () => {
               className="my-2"
               checked={imgInfo?.exifInfo?.hiddenRightInfo}
               onCheckedChange={(value: boolean) => {
-                console.log('onCheckedChange', value);
                 setImgInfo((info) => {
                   info.exifInfo.hiddenRightInfo = value;
                   return JSON.parse(JSON.stringify(info));
