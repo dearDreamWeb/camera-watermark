@@ -121,7 +121,7 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
         // 定义阴影
         const shadow = new fabric.Shadow({
           color: 'rgba(0,0,0,0.8)',
-          blur: 100,
+          blur: (exifData?.ShadowBlur || 5) * 20,
           offsetX: 0,
           offsetY: 0,
         });

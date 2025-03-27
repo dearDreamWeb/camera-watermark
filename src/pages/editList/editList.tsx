@@ -1,5 +1,5 @@
 /* eslint-disable no-async-promise-executor */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import EditComponent, {
   ForWardRefHandler,
@@ -12,6 +12,8 @@ import Worker from '../../workers/index?worker';
 import { saveFile } from '@/utils';
 import { getDbEditInfo } from '@/db/utils';
 import loadingSystem from '@/components/loadingSystem/loadingSystem';
+import EditComponentBlur from '@/components/editComponentBlur/editComponentBlur';
+import { TemplateMode, templateModeLocal } from '../edit/edit';
 
 function EditList() {
   const location = useLocation<any>();
@@ -25,6 +27,9 @@ function EditList() {
   const [previewList, setPreviewList] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [templateMode, setTemplateMode] = useState<TemplateMode>(
+    templateModeLocal.get() || 'classic'
+  );
   const editRefs = new Array(listLen)
     .fill(1)
     .map(() => useRef<ForWardRefHandler>(null));
@@ -59,6 +64,56 @@ function EditList() {
     });
   };
 
+  /**
+   * 模板渲染
+   */
+  const templateRender = useCallback(
+    (item: any, index: number) => {
+      switch (templateMode) {
+        case 'blur':
+          return (
+            <EditComponentBlur
+              file={item.file}
+              exifInfo={item.exifInfo}
+              imgUrl={item.imgUrl}
+              ref={editRefs[index]}
+              onPreviewImg={(imgData) => {
+                setPreviewList((previewImgList: any) => {
+                  previewImgList[index] = imgData;
+                  const isOver = previewImgList.every((item: any) => !!item);
+                  if (isOver) {
+                    loadingSystem(false);
+                  }
+                  return JSON.parse(JSON.stringify(previewImgList));
+                });
+              }}
+            />
+          );
+        case 'classic':
+        default:
+          return (
+            <EditComponent
+              file={item.file}
+              exifInfo={item.exifInfo}
+              imgUrl={item.imgUrl}
+              ref={editRefs[index]}
+              onPreviewImg={(imgData) => {
+                setPreviewList((previewImgList: any) => {
+                  previewImgList[index] = imgData;
+                  const isOver = previewImgList.every((item: any) => !!item);
+                  if (isOver) {
+                    loadingSystem(false);
+                  }
+                  return JSON.parse(JSON.stringify(previewImgList));
+                });
+              }}
+            />
+          );
+      }
+    },
+    [templateMode, editRefs]
+  );
+
   return (
     <div className="font-bold w-full min-h-screen px-8 pt-20 pb-16">
       <div className="flex justify-center items-center mb-12 relative">
@@ -89,7 +144,8 @@ function EditList() {
             }`}
           >
             <div className="hidden">
-              <EditComponent
+              {templateRender(item, index)}
+              {/* <EditComponent
                 file={item.file}
                 exifInfo={item.exifInfo}
                 imgUrl={item.imgUrl}
@@ -105,6 +161,22 @@ function EditList() {
                   });
                 }}
               />
+              <EditComponentBlur
+                file={item.file}
+                exifInfo={item.exifInfo}
+                imgUrl={item.imgUrl}
+                ref={editRefs[index]}
+                onPreviewImg={(imgData) => {
+                  setPreviewList((previewImgList: any) => {
+                    previewImgList[index] = imgData;
+                    const isOver = previewImgList.every((item: any) => !!item);
+                    if (isOver) {
+                      loadingSystem(false);
+                    }
+                    return JSON.parse(JSON.stringify(previewImgList));
+                  });
+                }}
+              /> */}
             </div>
             {previewList[index] && (
               <img src={previewList[index]} className="max-w-full max-h-full" />

@@ -6642,6 +6642,8 @@
   "ExposureMode": "Manual",
   "SceneCaptureType": "Standard",
   "LensModel": "EF-S18-135mm f/3.5-5.6 IS STM",
+  "ShadowBlur": 5,
+  "BgBlur": 5,
   "hiddenLeftInfo": false,
   "hiddenRightInfo": false
 }

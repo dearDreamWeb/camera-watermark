@@ -201,6 +201,17 @@ function DefaultValue() {
                             onChangeValue(item.name, e.target.value)
                           }
                         />
+                      ) : index === 2 &&
+                        ['BgBlur', 'ShadowBlur'].includes(item.name) ? (
+                        <InputNumber
+                          placeholder="请输入参数"
+                          max={10}
+                          min={0}
+                          value={preParamsRef.current?.[item.name] || 5}
+                          onChange={(e) =>
+                            onChangeValue(item.name, e.target.value)
+                          }
+                        />
                       ) : (
                         <RadioGroup
                           defaultValue={(
