@@ -55,10 +55,7 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       mainCanvas.current = fabricCanvas;
       logoCanvas.current = fabricLogoCanvas;
       if (exifData?.hiddenBottomInfo) {
-        // TO DO dom节点删不掉，要处理一下
         logoCanvas.current.dispose();
-        initAligningGuidelines(fabricCanvas);
-        initCenteringGuidelines(fabricCanvas);
       } else {
         initAligningGuidelines(fabricLogoCanvas);
         initCenteringGuidelines(fabricLogoCanvas);
@@ -383,18 +380,21 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
         className="bg-gray-50 flex justify-center items-center"
         style={{
           width: `${MAXWIDTH}px`,
-          height: `${LOGOHEIGHT + MAXHEIGHT}px`,
+          height: `${
+            (exifData?.hiddenBottomInfo ? 0 : LOGOHEIGHT) + MAXHEIGHT
+          }px`,
         }}
       >
         <div>
           <canvas id="mainCanvas" width={MAXWIDTH} height={300}></canvas>
+          <div className={exifData?.hiddenBottomInfo ? 'hidden' : ''}>
+            <canvas
+              id="logoCanvas"
+              width={MAXWIDTH}
+              height={LOGOHEIGHT}
+            ></canvas>
+          </div>
 
-          <canvas
-            id="logoCanvas"
-            className={exifData?.hiddenBottomInfo ? 'hidden' : ''}
-            width={MAXWIDTH}
-            height={LOGOHEIGHT}
-          ></canvas>
           <div className="hidden">
             <canvas id="downloadCanvas"></canvas>
           </div>
