@@ -197,12 +197,13 @@ const Edit = () => {
       let exifs = await Promise.all(
         files.map((file) => exifr.parse(file, true))
       );
-      console.log('---exifs', exifs);
+      console.log('exifs----', exifs, defaultParams.current?.[0]?.info);
       setImgInfo({
         file,
         filename: file.name,
         exifInfo: exifs[0]?.Make
           ? {
+              ...(defaultParams.current?.[0]?.info || {}),
               ...exifs[0]!,
               ExposureTime:
                 typeof exifs[0]?.ExposureTime === 'number'

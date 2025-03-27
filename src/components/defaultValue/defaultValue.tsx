@@ -151,7 +151,7 @@ function DefaultValue() {
         </Tooltip>
       </TooltipProvider>
       <Dialog open={open} onOpenChange={(value) => setOpen(value)}>
-        <DialogContent>
+        <DialogContent className="h-2/3 overflow-y-auto">
           <DialogHeader>
             <DialogTitle>修改默认值</DialogTitle>
           </DialogHeader>

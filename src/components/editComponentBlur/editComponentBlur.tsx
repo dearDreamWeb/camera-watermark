@@ -54,12 +54,8 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       const fabricDownloadCanvas = new fabric.Canvas('downloadCanvas');
       mainCanvas.current = fabricCanvas;
       logoCanvas.current = fabricLogoCanvas;
-      if (exifData?.hiddenBottomInfo) {
-        logoCanvas.current.dispose();
-      } else {
-        initAligningGuidelines(fabricLogoCanvas);
-        initCenteringGuidelines(fabricLogoCanvas);
-      }
+      initAligningGuidelines(fabricLogoCanvas);
+      initCenteringGuidelines(fabricLogoCanvas);
       downloadCanvas.current = fabricDownloadCanvas;
     }, []);
 
@@ -129,8 +125,9 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
           offsetX: 0,
           offsetY: 0,
         });
-        imgUpper.left =
-          (mainCanvas.current!.width! - imgUpper.width! * imgUpper.scaleX!) / 2;
+        imgUpper.left = Math.floor(
+          (mainCanvas.current!.width! - imgUpper.width! * imgUpper.scaleX!) / 2
+        );
         imgUpper.top = exifData?.hiddenBottomInfo
           ? mainCanvas.current!.height! -
             imgUpper.height! * imgUpper.scaleY! -
@@ -170,10 +167,14 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       ) {
         return;
       }
+      // 判断是否为竖屏照片
+      const isVertical =
+        mainCanvas.current?.height! > mainCanvas.current?.width!;
       // console.log('exifData', exifData);
 
       const fontColor = exifData?.hiddenBottomInfo ? '#fff' : '#333';
       const subFontColor = exifData?.hiddenBottomInfo ? '#fff' : '#666';
+      logoCanvas.current?.clear();
 
       if (!exifData?.hiddenLeftInfo) {
         // 相机
@@ -207,7 +208,9 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
 
         if (exifData?.hiddenBottomInfo) {
           leftGroup.set({
-            left: Math.floor(mainCanvas.current?.width! * 0.1) + 12,
+            left:
+              Math.floor(mainCanvas.current?.width! * 0.05) +
+              (isVertical ? 0 : 12),
             top: Math.floor(
               mainCanvas.current?.height! -
                 LOGOHEIGHT +
@@ -317,12 +320,15 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
                 (LOGOHEIGHT - rightGroup.height!) / 2
             ),
             left: Math.floor(
-              mainCanvas.current?.width! * 0.9 - rightGroup.width! - 12
+              mainCanvas.current?.width! * 0.95 -
+                rightGroup.width! -
+                (isVertical ? 0 : 12)
             ),
           });
           mainCanvas.current?.add(rightGroup);
         } else {
           logoCanvas.current?.add(rightGroup);
+          logoCanvas.current?.renderAll();
         }
       }
     };
