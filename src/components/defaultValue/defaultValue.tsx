@@ -151,7 +151,7 @@ function DefaultValue() {
         </Tooltip>
       </TooltipProvider>
       <Dialog open={open} onOpenChange={(value) => setOpen(value)}>
-        <DialogContent>
+        <DialogContent className="h-2/3 overflow-y-auto">
           <DialogHeader>
             <DialogTitle>修改默认值</DialogTitle>
           </DialogHeader>
@@ -197,6 +197,17 @@ function DefaultValue() {
                         <Input
                           placeholder="请输入参数"
                           defaultValue={preParamsRef.current?.[item.name] || ''}
+                          onChange={(e) =>
+                            onChangeValue(item.name, e.target.value)
+                          }
+                        />
+                      ) : index === 2 &&
+                        ['BgBlur', 'ShadowBlur'].includes(item.name) ? (
+                        <InputNumber
+                          placeholder="请输入参数"
+                          max={10}
+                          min={0}
+                          value={preParamsRef.current?.[item.name] || 5}
                           onChange={(e) =>
                             onChangeValue(item.name, e.target.value)
                           }

@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { fabric } from 'fabric';
-import { downloadFile, loadImage, saveFile } from '@/utils';
+import { createLocal, downloadFile, loadImage, saveFile } from '@/utils';
 import exifr from 'exifr';
 import EditComponent, {
   ForWardRefHandler,
@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import EditComponentBlur from '@/components/editComponentBlur/editComponentBlur';
 
 export type ExifBaseType =
   | 'FocalLength'
@@ -40,8 +41,11 @@ export type ExifBaseType =
   | 'Model'
   | 'LensModel'
   | 'Make'
+  | 'hiddenBottomInfo'
   | 'hiddenLeftInfo'
   | 'hiddenRightInfo'
+  | 'BgBlur'
+  | 'ShadowBlur'
   | 'FontFamily';
 
 export const FontFamilyList = [
@@ -105,7 +109,35 @@ export const exifBaseInfoList: ExifBaseInfoListItem[] = [
         name: 'FontFamily',
         label: '字体：',
       },
+      {
+        name: 'BgBlur',
+        label: '背景模糊度：',
+      },
+      {
+        name: 'ShadowBlur',
+        label: '阴影半径：',
+      },
     ],
+  },
+];
+
+export type TemplateMode = 'classic' | 'blur';
+
+export const templateModeLocal = createLocal<TemplateMode>('templateMode');
+
+interface TemplateModeListItem {
+  value: TemplateMode;
+  label: string;
+}
+
+const templateModeList: TemplateModeListItem[] = [
+  {
+    value: 'classic',
+    label: '经典',
+  },
+  {
+    value: 'blur',
+    label: '背景模糊',
   },
 ];
 
@@ -132,6 +164,9 @@ const Edit = () => {
   });
   const [openLogo, setOpenLogo] = useState(false);
   const defaultParams = useRef<any[]>([]);
+  const [templateMode, setTemplateMode] = useState<TemplateMode>(
+    templateModeLocal.get() || 'classic'
+  );
 
   console.log('editState-----', editState);
   useEffect(() => {
@@ -162,19 +197,23 @@ const Edit = () => {
       let exifs = await Promise.all(
         files.map((file) => exifr.parse(file, true))
       );
-      console.log('---exifs', exifs);
+      console.log('exifs----', exifs, defaultParams.current?.[0]?.info);
       setImgInfo({
         file,
         filename: file.name,
         exifInfo: exifs[0]?.Make
           ? {
+              ...(defaultParams.current?.[0]?.info || {}),
               ...exifs[0]!,
               ExposureTime:
                 typeof exifs[0]?.ExposureTime === 'number'
                   ? Math.floor(1 / exifs[0].ExposureTime)
                   : null,
               hiddenLeftInfo: false,
+              hiddenBottomInfo: false,
               hiddenRightInfo: false,
+              BgBlur: 5,
+              ShadowBlur: 5,
             }
           : { ...(defaultParams.current?.[0]?.info || {}) },
         imgUrl: e.target?.result as string,
@@ -268,21 +307,147 @@ const Edit = () => {
     );
   };
 
+  /**
+   * 模板渲染
+   */
+  const templateRender = useCallback(() => {
+    switch (templateMode) {
+      case 'blur':
+        return (
+          <EditComponentBlur
+            ref={editRef}
+            file={imgInfo.file}
+            exifInfo={imgInfo.exifInfo}
+            imgUrl={imgInfo.imgUrl}
+          />
+        );
+      case 'classic':
+      default:
+        return (
+          <EditComponent
+            ref={editRef}
+            file={imgInfo.file}
+            exifInfo={imgInfo.exifInfo}
+            imgUrl={imgInfo.imgUrl}
+          />
+        );
+    }
+  }, [templateMode, editRef, imgInfo]);
+
+  const changeTemplateMode = async (value: TemplateMode) => {
+    setTemplateMode(value);
+    templateModeLocal.set(value);
+  };
+
+  const rightOptionsRender = useCallback(
+    (item: ExifBaseInfoListChildrenItem, index: number) => {
+      if (index === 0) {
+        return (
+          <>
+            <div className="w-20">{item.label}</div>
+            <InputNumber
+              placeholder="请输入数字"
+              value={imgInfo?.exifInfo?.[item.name] || '0'}
+              onChange={(e) => changeExif(item.name, e.target.value)}
+            />
+          </>
+        );
+      } else if (index === 2 && item.name === 'FontFamily') {
+        return (
+          <>
+            <div className="w-20">{item.label}</div>
+            <Select
+              defaultValue={imgInfo?.exifInfo?.FontFamily || FontFamilyList[0]}
+              onValueChange={(value: string) => changeExif(item.name, value)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a fruit" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {FontFamilyList.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </>
+        );
+      } else if (index === 2 && ['BgBlur', 'ShadowBlur'].includes(item.name)) {
+        if (templateMode === 'blur') {
+          return (
+            <>
+              <div className="w-20">{item.label}</div>
+              <InputNumber
+                placeholder="请输入参数"
+                max={10}
+                min={0}
+                value={imgInfo?.exifInfo?.[item.name] || 0}
+                onChange={(e) => changeExif(item.name, e.target.value)}
+              />
+            </>
+          );
+        }
+      } else {
+        return (
+          <>
+            <div className="w-20">{item.label}</div>
+            <Input
+              placeholder="请输入参数"
+              value={imgInfo?.exifInfo?.[item.name] || ''}
+              onChange={(e) => changeExif(item.name, e.target.value)}
+            />
+          </>
+        );
+      }
+    },
+    [imgInfo, templateMode, changeExif, FontFamilyList]
+  );
+
   return (
     <div className="flex min-h-screen pt-24 pb-16 w-full overflow-x-auto px-4 justify-center">
       <div className="flex flex-col justify-center mr-8">
+        <div className="mb-8">
+          <div className="mb-2">选择模板：</div>
+          <Select
+            defaultValue={templateMode}
+            onValueChange={changeTemplateMode}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="选择模板" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {templateModeList.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
         <input type="file" ref={fileRef} accept="image/*" className="hidden" />
         <Button onClick={uploadImg}>更换图片</Button>
         <Button variant="outline" className="mt-8 " onClick={downloadHandler}>
           下载
         </Button>
       </div>
-      <EditComponent
+      {/* <EditComponent
         ref={editRef}
         file={imgInfo.file}
         exifInfo={imgInfo.exifInfo}
         imgUrl={imgInfo.imgUrl}
-      />
+      /> */}
+      {/* <EditComponentBlur
+        ref={editRef}
+        file={imgInfo.file}
+        exifInfo={imgInfo.exifInfo}
+        imgUrl={imgInfo.imgUrl}
+      /> */}
+      {templateRender()}
       <div className="w-48 bg-white p-4 ml-8">
         <div className="mb-8">
           <div className="font-bold text-base flex items-center">
@@ -310,8 +475,8 @@ const Edit = () => {
             <div className="font-bold text-base mb-4">{groupItem.name}</div>
             {groupItem.children.map((item) => (
               <div className="flex items-center mb-2" key={item.name}>
-                <div className="w-20">{item.label}</div>
-                {index === 0 ? (
+                {rightOptionsRender(item, index)}
+                {/* {index === 0 ? (
                   <InputNumber
                     placeholder="请输入数字"
                     value={imgInfo?.exifInfo?.[item.name] || '0'}
@@ -339,25 +504,48 @@ const Edit = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                ) : index === 2 &&
+                  ['BgBlur', 'ShadowBlur'].includes(item.name) ? (
+                  <InputNumber
+                    placeholder="请输入参数"
+                    max={10}
+                    min={0}
+                    value={imgInfo?.exifInfo?.[item.name] || 0}
+                    onChange={(e) => changeExif(item.name, e.target.value)}
+                  />
                 ) : (
                   <Input
                     placeholder="请输入参数"
                     value={imgInfo?.exifInfo?.[item.name] || ''}
                     onChange={(e) => changeExif(item.name, e.target.value)}
                   />
-                )}
+                )} */}
               </div>
             ))}
           </div>
         ))}
         <div className="mb-8">
+          {templateMode === 'blur' && (
+            <div>
+              <div>取消底部相机信息</div>
+              <Switch
+                className="my-2"
+                checked={imgInfo?.exifInfo?.hiddenBottomInfo}
+                onCheckedChange={(value: boolean) => {
+                  setImgInfo((info) => {
+                    info.exifInfo.hiddenBottomInfo = value;
+                    return JSON.parse(JSON.stringify(info));
+                  });
+                }}
+              />
+            </div>
+          )}
           <div>
             <div>隐藏左边信息</div>
             <Switch
               className="my-2"
               checked={imgInfo?.exifInfo?.hiddenLeftInfo}
               onCheckedChange={(value: boolean) => {
-                console.log('onCheckedChange', value);
                 setImgInfo((info) => {
                   info.exifInfo.hiddenLeftInfo = value;
                   return JSON.parse(JSON.stringify(info));
@@ -371,7 +559,6 @@ const Edit = () => {
               className="my-2"
               checked={imgInfo?.exifInfo?.hiddenRightInfo}
               onCheckedChange={(value: boolean) => {
-                console.log('onCheckedChange', value);
                 setImgInfo((info) => {
                   info.exifInfo.hiddenRightInfo = value;
                   return JSON.parse(JSON.stringify(info));

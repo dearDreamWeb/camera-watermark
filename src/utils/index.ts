@@ -75,3 +75,27 @@ export function saveFile(blob: any, fileName: string) {
 
   window.URL.revokeObjectURL(link.href);
 }
+
+interface CreateLocalBase<T> {
+  value: T;
+}
+
+export const createLocal = <T>(name: string) => {
+  return {
+    get() {
+      const res = localStorage.getItem(`${name}`);
+      try {
+        let local = JSON.parse(res as string) as CreateLocalBase<T>;
+        return local.value;
+      } catch (e) {
+        return null;
+      }
+    },
+    set(value: T) {
+      return localStorage.setItem(`${name}`, JSON.stringify({ value }));
+    },
+    remove() {
+      return localStorage.removeItem(`${name}`);
+    },
+  };
+};

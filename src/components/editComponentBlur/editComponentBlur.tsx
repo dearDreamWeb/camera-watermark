@@ -1,10 +1,10 @@
 import {
   forwardRef,
+  memo,
   useEffect,
   useImperativeHandle,
   useRef,
   useState,
-  memo,
 } from 'react';
 import { fabric } from 'fabric';
 import { clonePromise, loadImage } from '@/utils';
@@ -34,7 +34,7 @@ export interface ForWardRefHandler {
   exportImageUrl: (props: { multiplier?: number }) => Promise<string>;
 }
 
-const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
+const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
   (props, ref) => {
     const { file, exifInfo, imgUrl, onPreviewImg } = props;
     const mainCanvas = useRef<fabric.Canvas>();
@@ -54,9 +54,9 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       const fabricDownloadCanvas = new fabric.Canvas('downloadCanvas');
       mainCanvas.current = fabricCanvas;
       logoCanvas.current = fabricLogoCanvas;
-      downloadCanvas.current = fabricDownloadCanvas;
       initAligningGuidelines(fabricLogoCanvas);
       initCenteringGuidelines(fabricLogoCanvas);
+      downloadCanvas.current = fabricDownloadCanvas;
     }, []);
 
     const initCanvas = async () => {
@@ -75,6 +75,8 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
 
       try {
         const img = await loadImage(imgUrl);
+        const imgUpper = await loadImage(imgUrl);
+
         cacheImgUrl.current = imgUrl;
 
         if (img.width! > MAXWIDTH || img.height! > MAXHEIGHT) {
@@ -84,6 +86,11 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
           );
           img.scale(
             scaleFactor % 1 === 0 ? scaleFactor : Number(scaleFactor.toFixed(2))
+          );
+          imgUpper.scale(
+            (scaleFactor % 1 === 0
+              ? scaleFactor
+              : Number(scaleFactor.toFixed(2))) * 0.9
           );
         }
         const newWidth = img.width! * img.scaleX!;
@@ -99,8 +106,38 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         });
 
         img.selectable = false;
+        imgUpper.selectable = false;
+        fabric.textureSize = Math.max(img.width!, img.height!);
+        img.objectCaching = true;
+        img.filters = [
+          new fabric.Image.filters.Blur({
+            blur: (exifData?.BgBlur || 5) * 0.1,
+          }),
+        ];
+        img.applyFilters();
         mainCanvas.current?.clear();
         mainCanvas.current!.add(img);
+
+        // 定义阴影
+        const shadow = new fabric.Shadow({
+          color: 'rgba(0,0,0,0.8)',
+          blur: (exifData?.ShadowBlur || 5) * 20,
+          offsetX: 0,
+          offsetY: 0,
+        });
+        imgUpper.left = Math.floor(
+          (mainCanvas.current!.width! - imgUpper.width! * imgUpper.scaleX!) / 2
+        );
+        imgUpper.top = exifData?.hiddenBottomInfo
+          ? mainCanvas.current!.height! -
+            imgUpper.height! * imgUpper.scaleY! -
+            LOGOHEIGHT
+          : (mainCanvas.current!.height! -
+              imgUpper.height! * imgUpper.scaleY!) /
+            2;
+
+        imgUpper.set({ shadow, objectCaching: true });
+        mainCanvas.current!.add(imgUpper);
         mainCanvas.current?.renderAll();
       } catch (error) {
         message.error('图片加载失败');
@@ -124,21 +161,27 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
 
     const renderEditContent = async () => {
       logoCanvas.current!.backgroundColor! = '#fff';
-      console.log(111, exifData);
       if (
         !exifData?.Make ||
         !getLogo((exifData?.Make || '').toLocaleLowerCase())
       ) {
         return;
       }
-      console.log('exifData', exifData);
+      // 判断是否为竖屏照片
+      const isVertical =
+        mainCanvas.current?.height! > mainCanvas.current?.width!;
+      // console.log('exifData', exifData);
+
+      const fontColor = exifData?.hiddenBottomInfo ? '#fff' : '#333';
+      const subFontColor = exifData?.hiddenBottomInfo ? '#fff' : '#666';
+      logoCanvas.current?.clear();
 
       if (!exifData?.hiddenLeftInfo) {
         // 相机
         const modelText = new fabric.IText(exifData?.Model || '', {
           fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 20 : 16,
-          fill: '#333',
+          fill: fontColor,
           fontWeight: 'bold',
         });
         modelText.left = 0;
@@ -148,7 +191,7 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         const LensModelText = new fabric.IText(exifData?.LensModel || '', {
           fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 12,
-          fill: '#666',
+          fill: subFontColor,
           fontWeight: 'bold',
         });
         LensModelText.left = modelText.left;
@@ -158,8 +201,27 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
           left: 12,
           customType: 'leftGroup',
         } as any);
-        leftGroup.top = Math.floor((LOGOHEIGHT - leftGroup.height!) / 2);
-        logoCanvas.current?.add(leftGroup);
+        leftGroup.set({
+          lockRotation: true,
+          top: Math.floor((LOGOHEIGHT - leftGroup.height!) / 2),
+        });
+
+        if (exifData?.hiddenBottomInfo) {
+          leftGroup.set({
+            left:
+              Math.floor(mainCanvas.current?.width! * 0.05) +
+              (isVertical ? 0 : 12),
+            top: Math.floor(
+              mainCanvas.current?.height! -
+                LOGOHEIGHT +
+                (LOGOHEIGHT - leftGroup.height!) / 2
+            ),
+          });
+
+          mainCanvas.current?.add(leftGroup);
+        } else {
+          logoCanvas.current?.add(leftGroup);
+        }
       }
 
       const logoImg = await loadImage(
@@ -169,22 +231,38 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       );
 
       (logoImg as any).customType = 'logoImg';
+
       logoImg.scale(0.15);
-      console.log('logoImg', logoImg);
-      logoImg.top = Math.floor(
-        (LOGOHEIGHT - logoImg.height! * logoImg.scaleY!) / 2
-      );
-      logoImg.left = Math.floor(
-        (logoCanvas.current?.width! - logoImg.width! * logoImg.scaleX!) / 2
-      );
-      logoImg.selectable = true;
-      logoCanvas.current?.add(logoImg);
+      // console.log('logoImg', logoImg);
+      logoImg.set({
+        selectable: true,
+        lockRotation: true,
+        top: Math.floor((LOGOHEIGHT - logoImg.height! * logoImg.scaleY!) / 2),
+        left: Math.floor(
+          (logoCanvas.current?.width! - logoImg.width! * logoImg.scaleX!) / 2
+        ),
+      });
+      if (exifData?.hiddenBottomInfo) {
+        logoImg.set({
+          top: Math.floor(
+            mainCanvas.current?.height! -
+              LOGOHEIGHT +
+              (LOGOHEIGHT - logoImg.height! * logoImg.scaleY!) / 2
+          ),
+          left: Math.floor(
+            (mainCanvas.current?.width! - logoImg.width! * logoImg.scaleX!) / 2
+          ),
+        });
+        mainCanvas.current?.add(logoImg);
+      } else {
+        logoCanvas.current?.add(logoImg);
+      }
 
       if (!exifData?.hiddenRightInfo) {
         const rightGroupStyle: fabric.ITextOptions = {
           fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 14,
-          fill: '#333',
+          fill: fontColor,
           fontWeight: 'bold',
         };
 
@@ -228,16 +306,31 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
             customType: 'leftGroup',
           } as any
         );
-        rightGroup.top = Math.floor((LOGOHEIGHT - rightGroup.height!) / 2);
-        rightGroup.left = Math.floor(
-          logoCanvas.current?.width! - rightGroup.width! - 12
-        );
-        logoCanvas.current?.add(rightGroup);
-      }
+        rightGroup.set({
+          lockRotation: true,
+          top: Math.floor((LOGOHEIGHT - rightGroup.height!) / 2),
+          left: Math.floor(logoCanvas.current?.width! - rightGroup.width! - 12),
+        });
 
-      // logoCanvas.current?.getObjects()!.forEach((obj) => {
-      //   obj.selectable = true;
-      // });
+        if (exifData?.hiddenBottomInfo) {
+          rightGroup.set({
+            top: Math.floor(
+              mainCanvas.current?.height! -
+                LOGOHEIGHT +
+                (LOGOHEIGHT - rightGroup.height!) / 2
+            ),
+            left: Math.floor(
+              mainCanvas.current?.width! * 0.95 -
+                rightGroup.width! -
+                (isVertical ? 0 : 12)
+            ),
+          });
+          mainCanvas.current?.add(rightGroup);
+        } else {
+          logoCanvas.current?.add(rightGroup);
+          logoCanvas.current?.renderAll();
+        }
+      }
     };
 
     useImperativeHandle(ref, () => ({
@@ -250,25 +343,28 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       downloadCanvas.current?.clear();
       downloadCanvas.current!.backgroundColor! = '#fff';
       const width = mainCanvas.current?.width!;
-      const height = mainCanvas.current?.height! + logoCanvas.current?.height!;
+      const height =
+        mainCanvas.current?.height! +
+        (exifData?.hiddenBottomInfo ? 0 : logoCanvas.current?.height!);
       downloadCanvas.current?.setDimensions({ width, height });
 
       const mainCanvasObjects = await (Promise.all(
         mainCanvas.current!.getObjects()!.map((item) => clonePromise(item))
       ) as Promise<fabric.Object[]>);
 
-      const logoCanvasObjects = await (Promise.all(
-        logoCanvas.current!.getObjects()!.map((item) => clonePromise(item))
-      ) as Promise<fabric.Object[]>);
-
       mainCanvasObjects.forEach((obj) => {
         downloadCanvas.current?.add(obj);
       });
 
-      logoCanvasObjects.forEach((obj) => {
-        obj.top! += mainCanvas.current?.height!;
-        downloadCanvas.current?.add(obj);
-      });
+      if (!exifData?.hiddenBottomInfo) {
+        const logoCanvasObjects = await (Promise.all(
+          logoCanvas.current!.getObjects()!.map((item) => clonePromise(item))
+        ) as Promise<fabric.Object[]>);
+        logoCanvasObjects.forEach((obj) => {
+          obj.top! += mainCanvas.current?.height!;
+          downloadCanvas.current?.add(obj);
+        });
+      }
 
       downloadCanvas.current?.renderAll();
       // debugger;
@@ -290,12 +386,21 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
         className="bg-gray-50 flex justify-center items-center"
         style={{
           width: `${MAXWIDTH}px`,
-          height: `${LOGOHEIGHT + MAXHEIGHT}px`,
+          height: `${
+            (exifData?.hiddenBottomInfo ? 0 : LOGOHEIGHT) + MAXHEIGHT
+          }px`,
         }}
       >
         <div>
           <canvas id="mainCanvas" width={MAXWIDTH} height={300}></canvas>
-          <canvas id="logoCanvas" width={MAXWIDTH} height={LOGOHEIGHT}></canvas>
+          <div className={exifData?.hiddenBottomInfo ? 'hidden' : ''}>
+            <canvas
+              id="logoCanvas"
+              width={MAXWIDTH}
+              height={LOGOHEIGHT}
+            ></canvas>
+          </div>
+
           <div className="hidden">
             <canvas id="downloadCanvas"></canvas>
           </div>
@@ -304,4 +409,4 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
     );
   }
 );
-export default memo(EditComponent);
+export default memo(EditComponentBlur);
