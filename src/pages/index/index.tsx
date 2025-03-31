@@ -297,7 +297,7 @@ const Index = () => {
         <section className="mt-12 bg-white w-full rounded-lg py-4">
           <h1 className="text-2xl text-center mb-2">示例图片</h1>
           <div className="text-gray-500 text-center mb-4">
-            点击可查看大图（示例图不代表最终效果，仅供参考）
+            点击可查看大图（示例图都是压缩过的，不代表最终效果，仅供参考）
           </div>
           <div className="flex justify-center">
             <div className="group relative mr-8">
