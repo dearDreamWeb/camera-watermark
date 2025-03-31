@@ -407,47 +407,54 @@ const Edit = () => {
   );
 
   return (
-    <div className="flex min-h-screen pt-24 pb-16 w-full overflow-x-auto px-4 justify-center">
-      <div className="flex flex-col justify-center mr-8">
-        <div className="mb-8">
-          <div className="mb-2">选择模板：</div>
-          <Select
-            defaultValue={templateMode}
-            onValueChange={changeTemplateMode}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="选择模板" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {templateModeList.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+    <div className="flex min-h-screen pt-24 pb-16 w-auto overflow-x-auto px-4 my-0 mx-auto">
+      <div className="flex items-center">
+        <div className="flex flex-col justify-center mr-8">
+          <div className="mb-8">
+            <div className="mb-2">选择模板：</div>
+            <Select
+              defaultValue={templateMode}
+              onValueChange={changeTemplateMode}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="选择模板" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {templateModeList.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <input
+            type="file"
+            ref={fileRef}
+            accept="image/*"
+            className="hidden"
+          />
+          <Button onClick={uploadImg}>更换图片</Button>
+          <Button variant="outline" className="mt-8 " onClick={downloadHandler}>
+            下载
+          </Button>
         </div>
-        <input type="file" ref={fileRef} accept="image/*" className="hidden" />
-        <Button onClick={uploadImg}>更换图片</Button>
-        <Button variant="outline" className="mt-8 " onClick={downloadHandler}>
-          下载
-        </Button>
+        {/* <EditComponent
+        ref={editRef}
+        file={imgInfo.file}
+        exifInfo={imgInfo.exifInfo}
+        imgUrl={imgInfo.imgUrl}
+      /> */}
+        {/* <EditComponentBlur
+        ref={editRef}
+        file={imgInfo.file}
+        exifInfo={imgInfo.exifInfo}
+        imgUrl={imgInfo.imgUrl}
+      /> */}
+        {templateRender()}
       </div>
-      {/* <EditComponent
-        ref={editRef}
-        file={imgInfo.file}
-        exifInfo={imgInfo.exifInfo}
-        imgUrl={imgInfo.imgUrl}
-      /> */}
-      {/* <EditComponentBlur
-        ref={editRef}
-        file={imgInfo.file}
-        exifInfo={imgInfo.exifInfo}
-        imgUrl={imgInfo.imgUrl}
-      /> */}
-      {templateRender()}
       <div className="w-48 bg-white p-4 ml-8">
         <div className="mb-8">
           <div className="font-bold text-base flex items-center">

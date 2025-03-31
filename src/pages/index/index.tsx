@@ -102,10 +102,26 @@ const descList = [
 ];
 
 const exampleList = [
-  'https://resource.blogwxb.cn/cameraWatermark/example_1.png',
-  'https://resource.blogwxb.cn/cameraWatermark/example_2.png',
-  'https://resource.blogwxb.cn/cameraWatermark/example_4.png',
-  'https://resource.blogwxb.cn/cameraWatermark/example_5.png',
+  {
+    key: '0',
+    url: 'https://resource.blogwxb.cn/cameraWatermark/example_1.png',
+    styles: { width: '420px', height: '301px' },
+  },
+  {
+    key: '1',
+    url: 'https://resource.blogwxb.cn/cameraWatermark/example_2.png',
+    styles: { height: '301px' },
+  },
+  {
+    key: '2',
+    url: 'https://resource.blogwxb.cn/cameraWatermark/example_4.png',
+    styles: { width: '420px', height: '301px' },
+  },
+  {
+    key: '3',
+    url: 'https://resource.blogwxb.cn/cameraWatermark/example_5.png',
+    styles: { height: '301px' },
+  },
 ];
 
 const Index = () => {
@@ -299,84 +315,58 @@ const Index = () => {
           <div className="text-gray-500 text-center mb-4">
             点击可查看大图（示例图都是压缩过的，不代表最终效果，仅供参考）
           </div>
-          <div className="flex justify-center">
-            <div className="group relative mr-8">
-              <img
-                src={
-                  'https://resource.blogwxb.cn/cameraWatermark/example_1.png'
-                }
-                alt={'example_1'}
-                style={{ width: '420px', height: '301px' }}
-              />
+          <div className="flex justify-center mb-4">
+            {exampleList.slice(0, 2).map((item, index) => (
               <div
-                className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
-                onClick={() => {
-                  setPhotoIndex(0);
-                  setIsOpen(true);
-                }}
-              ></div>
-            </div>
-            <div className="group relative">
-              <img
-                src={
-                  'https://resource.blogwxb.cn/cameraWatermark/example_2.png'
-                }
-                alt={'example_1'}
-                style={{ height: '301px' }}
-              />
-              <div
-                className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
-                onClick={() => {
-                  setPhotoIndex(1);
-                  setIsOpen(true);
-                }}
-              ></div>
-            </div>
+                key={item.url}
+                className={`group relative ${index % 2 === 0 ? 'mr-8' : ''}`}
+              >
+                <img
+                  src={item.url}
+                  alt={item.url}
+                  style={{ ...(item.styles || {}) }}
+                />
+                <div
+                  className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
+                  onClick={() => {
+                    setPhotoIndex(index);
+                    setIsOpen(true);
+                  }}
+                ></div>
+              </div>
+            ))}
           </div>
           <div className="flex justify-center">
-            <div className="group relative mr-8">
-              <img
-                src={
-                  'https://resource.blogwxb.cn/cameraWatermark/example_4.png'
-                }
-                alt={'example_1'}
-                style={{ width: '420px', height: '301px' }}
-              />
+            {exampleList.slice(2, 4).map((item, index) => (
               <div
-                className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
-                onClick={() => {
-                  setPhotoIndex(2);
-                  setIsOpen(true);
-                }}
-              ></div>
-            </div>
-            <div className="group relative">
-              <img
-                src={
-                  'https://resource.blogwxb.cn/cameraWatermark/example_5.png'
-                }
-                alt={'example_1'}
-                style={{ height: '301px' }}
-              />
-              <div
-                className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
-                onClick={() => {
-                  setPhotoIndex(3);
-                  setIsOpen(true);
-                }}
-              ></div>
-            </div>
+                key={item.url}
+                className={`group relative ${index % 2 === 0 ? 'mr-8' : ''}`}
+              >
+                <img
+                  src={item.url}
+                  alt={item.url}
+                  style={{ ...(item.styles || {}) }}
+                />
+                <div
+                  className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
+                  onClick={() => {
+                    setPhotoIndex(index + 2);
+                    setIsOpen(true);
+                  }}
+                ></div>
+              </div>
+            ))}
           </div>
         </section>
       </div>
       {isOpen && (
         <Lightbox
-          mainSrc={exampleList[photoIndex]}
-          nextSrc={exampleList[(photoIndex + 1) % exampleList.length]}
+          mainSrc={exampleList[photoIndex].url}
+          nextSrc={exampleList[(photoIndex + 1) % exampleList.length].url}
           prevSrc={
             exampleList[
               (photoIndex + exampleList.length - 1) % exampleList.length
-            ]
+            ].url
           }
           onCloseRequest={() => setIsOpen(false)}
           onMovePrevRequest={() =>
