@@ -39,6 +39,11 @@
 ## 底部可进行自由编辑
 <img width='500px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_3.png'/>
 
+## 新增背景模糊模板
+<img width='500px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_4.png'/>
+<img height='430px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_5.png'/>
+
+
 # 🧰 功能
 
 **已实现功能**
@@ -50,6 +55,7 @@
 - ✅ 可以保存默认值，对未有 exif 信息的图片进行默认值展示
 - ✅ 可以选择字体
 - ✅ 底部自定义编辑
+- ✅ 新增背景模糊模板
 
 **未来排期规划的功能**
 

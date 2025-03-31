@@ -85,11 +85,27 @@ const descList = [
     iconName: 'mdi:auto-awesome-motion',
     text: '支持批量导入导出多张图片。',
   },
+  {
+    key: '4',
+    name: '自定义编辑',
+    color: '#38A3EE',
+    iconName: 'mdi:cash-edit',
+    text: '照片底部部分可自行拖拽编辑。',
+  },
+  {
+    key: '5',
+    name: '多种模板',
+    color: '#8B21F1',
+    iconName: 'mdi:apps',
+    text: '提供多种水印模板可供使用。',
+  },
 ];
 
 const exampleList = [
   'https://resource.blogwxb.cn/cameraWatermark/example_1.png',
   'https://resource.blogwxb.cn/cameraWatermark/example_2.png',
+  'https://resource.blogwxb.cn/cameraWatermark/example_4.png',
+  'https://resource.blogwxb.cn/cameraWatermark/example_5.png',
 ];
 
 const Index = () => {
@@ -312,6 +328,40 @@ const Index = () => {
                 className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
                 onClick={() => {
                   setPhotoIndex(1);
+                  setIsOpen(true);
+                }}
+              ></div>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <div className="group relative mr-8">
+              <img
+                src={
+                  'https://resource.blogwxb.cn/cameraWatermark/example_4.png'
+                }
+                alt={'example_1'}
+                style={{ width: '420px', height: '301px' }}
+              />
+              <div
+                className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
+                onClick={() => {
+                  setPhotoIndex(2);
+                  setIsOpen(true);
+                }}
+              ></div>
+            </div>
+            <div className="group relative">
+              <img
+                src={
+                  'https://resource.blogwxb.cn/cameraWatermark/example_5.png'
+                }
+                alt={'example_1'}
+                style={{ height: '301px' }}
+              />
+              <div
+                className="hidden group-hover:flex w-full h-full justify-center items-center bg-black bg-opacity-10 absolute left-0 top-0 cursor-pointer"
+                onClick={() => {
+                  setPhotoIndex(3);
                   setIsOpen(true);
                 }}
               ></div>
