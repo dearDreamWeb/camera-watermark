@@ -259,6 +259,10 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       }
 
       if (!exifData?.hiddenRightInfo) {
+        const rightGroup = new fabric.Group([], {
+          customType: 'rightGroup',
+        } as any);
+        rightGroup.width = 0;
         const rightGroupStyle: fabric.ITextOptions = {
           fontFamily: exifInfo.FontFamily,
           fontSize: mainCanvas.current?.width! >= MAXWIDTH ? 16 : 14,
@@ -267,45 +271,56 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
         };
 
         // 焦距
-        const FocalLengthText = new fabric.IText(
-          `${exifData?.FocalLength}mm | ` || '',
-          rightGroupStyle
-        );
-        FocalLengthText.left = 0;
+        if (exifData?.FocalLength && exifData?.FocalLength !== '0') {
+          const FocalLengthText = new fabric.IText(
+            `${exifData?.FocalLength}mm | ` || '',
+            rightGroupStyle
+          );
+          FocalLengthText.left = rightGroup.width;
+          rightGroup.width += Math.ceil(FocalLengthText.width!);
+          rightGroup.add(FocalLengthText);
+        }
 
         // 光圈
-        const FNumberText = new fabric.IText(
-          `f/${exifData?.FNumber} | ` || '',
-          rightGroupStyle
-        );
-        FNumberText.left = Math.floor(
-          FocalLengthText.left! + FocalLengthText.width!
-        );
+        if (exifData?.FNumber && exifData?.FNumber !== '0') {
+          const FNumberText = new fabric.IText(
+            `f/${exifData?.FNumber} | ` || '',
+            rightGroupStyle
+          );
+          FNumberText.left = Math.ceil(rightGroup.width!);
+          rightGroup.width += FNumberText.width!;
+          rightGroup.add(FNumberText);
+        }
 
         // 快门
-        const ExposureTimeText = new fabric.IText(
-          `1/${exifData?.ExposureTime}s | ` || '',
-          rightGroupStyle
-        );
-        ExposureTimeText.left = Math.floor(
-          FNumberText.left! + FNumberText.width!
-        );
+        if (exifData?.ExposureTime && exifData?.ExposureTime !== '0') {
+          const ExposureTimeText = new fabric.IText(
+            `1/${exifData?.ExposureTime}s | ` || '',
+            rightGroupStyle
+          );
+          ExposureTimeText.left = Math.ceil(rightGroup.width!);
+          rightGroup.width += ExposureTimeText.width!;
+          rightGroup.add(ExposureTimeText);
+        }
 
         // ISO
-        const ISOText = new fabric.IText(
-          `ISO${exifData?.ISO}` || '',
-          rightGroupStyle
-        );
-        ISOText.left = Math.floor(
-          ExposureTimeText.left! + ExposureTimeText.width!
-        );
+        if (exifData?.ISO && exifData?.ISO !== '0') {
+          const ISOText = new fabric.IText(
+            `ISO${exifData?.ISO}` || '',
+            rightGroupStyle
+          );
+          ISOText.left = Math.ceil(rightGroup.width!);
+          rightGroup.width += ISOText.width!;
+          rightGroup.add(ISOText);
+        }
 
-        const rightGroup = new fabric.Group(
-          [ExposureTimeText, FNumberText, FocalLengthText, ISOText],
-          {
-            customType: 'leftGroup',
-          } as any
-        );
+        if (rightGroup._objects.length) {
+          const object = rightGroup._objects[
+            rightGroup._objects.length - 1
+          ] as fabric.IText;
+          object.text = object.text!.replace(/\s|\|/g, '');
+        }
+        rightGroup.addWithUpdate();
         rightGroup.set({
           lockRotation: true,
           top: Math.floor((LOGOHEIGHT - rightGroup.height!) / 2),
