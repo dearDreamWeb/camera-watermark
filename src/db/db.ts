@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie';
 
 export interface EditInfoTableItem {
-  id?: number;
+  id: string;
   exifInfo: any;
   file: File;
   filename: string;
@@ -16,8 +16,8 @@ export class DB extends Dexie {
   constructor() {
     super('CameraWatermark');
 
-    this.version(1).stores({
-      editInfo: '++id,createdAt,updateAt',
+    this.version(2).stores({
+      editInfo: '&id,filename,createdAt,updateAt',
     });
   }
 }

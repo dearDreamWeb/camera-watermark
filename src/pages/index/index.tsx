@@ -184,9 +184,9 @@ const Index = () => {
       message.info('图片解析失败');
       return;
     }
-    const listLen = await addDbEditInfo(list as any[]);
+    const ids = await addDbEditInfo(list as any[]);
     loadingSystem(false);
-    history.push('/editList', { listLen });
+    history.push('/editList', { ids });
   };
 
   const renderFile = (file: File) => {

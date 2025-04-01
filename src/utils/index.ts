@@ -99,3 +99,11 @@ export const createLocal = <T>(name: string) => {
     },
   };
 };
+
+/**数字计算保留小数点后两位 */
+export const calcSizeHandler = (num: number) => {
+  if (num % 1 !== 0) {
+    return num.toFixed(2);
+  }
+  return num;
+};
