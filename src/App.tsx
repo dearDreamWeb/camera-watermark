@@ -87,7 +87,7 @@ function App() {
   };
 
   useEffect(() => {
-    // dbCheck();
+    dbCheck();
     window.addEventListener('beforeunload', (event) => {
       event.returnValue = `由于照片存储占用磁盘内存较大，刷新或者关闭将清除照片在本网站的缓存。确定吗?`;
       history.push('/');
@@ -99,7 +99,6 @@ function App() {
         localStorage.setItem('version', VERSION.toString());
       } else {
         message.info('系統更新，需要刷新一下').then(async () => {
-          await db.delete();
           localStorage.clear();
           localStorage.setItem('version', VERSION.toString());
           location.reload();
