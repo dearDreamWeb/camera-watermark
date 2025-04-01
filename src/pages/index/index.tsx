@@ -127,6 +127,7 @@ const exampleList = [
 const Index = () => {
   const history = useHistory();
   const fileRef = useRef<HTMLInputElement>(null);
+  const fileSingleRef = useRef<HTMLInputElement>(null);
   const editRef = useRef<ForWardRefHandler>(null);
   const [imgInfo, setImgInfo] = useState<{
     file: File | null;
@@ -156,23 +157,27 @@ const Index = () => {
   useEffect(() => {
     updateStorage();
     window.addEventListener('updateStorage', updateStorage);
-    if (!fileRef.current) {
-      return;
+    if (fileRef.current) {
+      fileRef.current.addEventListener('change', imgMultipleChange);
     }
-    fileRef.current.addEventListener('change', imgChange);
+    if (fileSingleRef.current) {
+      fileSingleRef.current.addEventListener('change', imgSingleChange);
+    }
     return () => {
-      fileRef.current?.removeEventListener('change', imgChange);
+      fileRef.current?.removeEventListener('change', imgMultipleChange);
+      fileSingleRef.current?.removeEventListener('change', imgSingleChange);
       window.removeEventListener('updateStorage', updateStorage);
     };
   }, []);
 
   /**图片变化 */
-  const imgChange = async () => {
+  const imgChange = async (type = 'multiple') => {
     loadingSystem(true);
     await clearDbEditInfo();
-    const filesList = fileRef.current!.files!;
+    const ref = type === 'multiple' ? fileRef.current! : fileSingleRef.current!;
+    const filesList = ref.files!;
 
-    console.log('fileRef.current!.files', fileRef.current!.files);
+    console.log('ref.files', ref.files);
     const list = [];
     for (let i = 0; i < filesList?.length; i++) {
       const info = await renderFile(filesList[i]);
@@ -184,10 +189,17 @@ const Index = () => {
       message.info('图片解析失败');
       return;
     }
-    const listLen = await addDbEditInfo(list as any[]);
+    const ids = await addDbEditInfo(list as any[]);
     loadingSystem(false);
-    history.push('/editList', { listLen });
+    if (type === 'multiple') {
+      history.push('/editList', { ids });
+    } else {
+      history.push('/edit', { id: ids[0] });
+    }
   };
+
+  const imgMultipleChange = () => imgChange('multiple');
+  const imgSingleChange = () => imgChange('single');
 
   const renderFile = (file: File) => {
     return new Promise((resolve, reject) => {
@@ -253,6 +265,12 @@ const Index = () => {
         className="hidden"
         multiple
       />
+      <input
+        type="file"
+        ref={fileSingleRef}
+        accept="image/*"
+        className="hidden"
+      />
       <div className="flex flex-col justify-center items-center">
         <section className="mb-12">
           <div className="flex items-center text-5xl">
@@ -264,12 +282,15 @@ const Index = () => {
           </div>
         </section>
         <section className="flex flex-col justify-center">
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-4">
+            <Button onClick={() => fileSingleRef.current?.click()}>
+              单个编辑
+            </Button>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button onClick={() => fileRef.current?.click()}>
-                    选择图片
+                    批量编辑
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>

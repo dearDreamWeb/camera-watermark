@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styles from './App.module.less';
 import routes from '../config/routes';
 import { renderRoutes } from 'react-router-config';
@@ -8,11 +8,58 @@ import { clearDbEditInfo } from './db/utils';
 import { Icon } from '@iconify-icon/react';
 import DefaultValue from './components/defaultValue/defaultValue';
 import message from './components/message/message';
+import { Skeleton } from './components/ui/skeleton';
+import { Progress } from './components/ui/progress';
+import { calcSizeHandler } from './utils';
 
 const VERSION = 1;
 
 function App() {
   const history = useHistory();
+  const [sizeInfo, setSizeInfo] = useState({
+    quota: 0,
+    used: 0,
+    isSupport: true,
+    loading: false,
+  });
+
+  const calcIndexDbSize = async () => {
+    setSizeInfo({ ...sizeInfo, loading: true });
+    try {
+      if ('storage' in navigator && 'estimate' in navigator.storage) {
+        const {
+          usage = 0,
+          quota = 0,
+          usageDetails,
+        } = (await navigator.storage.estimate()) as StorageEstimate & {
+          usageDetails: any;
+        };
+        setSizeInfo({
+          ...sizeInfo,
+          quota,
+          used: usageDetails?.indexedDB || usage || 0,
+          loading: false,
+          isSupport: true,
+        });
+      } else {
+        setSizeInfo({ ...sizeInfo, loading: false, isSupport: false });
+      }
+    } catch (e) {
+      setSizeInfo({ ...sizeInfo, loading: false, isSupport: false });
+    }
+  };
+
+  const calcSize = useMemo(() => {
+    if (!sizeInfo.isSupport) {
+      return { used: 0, quota: 0, process: 0 };
+    }
+    return {
+      used: calcSizeHandler(sizeInfo.used / Math.pow(1024, 2)),
+      quota: calcSizeHandler(sizeInfo.quota / Math.pow(1024, 2)),
+      process: calcSizeHandler((sizeInfo.used / sizeInfo.quota) * 100),
+    };
+  }, [sizeInfo]);
+
   useEffect(() => {
     window.addEventListener('beforeunload', (event) => {
       event.returnValue = `由于照片存储占用磁盘内存较大，刷新或者关闭将清除照片在本网站的缓存。确定吗?`;
@@ -32,6 +79,11 @@ function App() {
       }
       return;
     }
+    calcIndexDbSize();
+    window.addEventListener('changeIndexDb', calcIndexDbSize);
+    return () => {
+      window.removeEventListener('changeIndexDb', calcIndexDbSize);
+    };
   }, []);
 
   return (
@@ -45,6 +97,22 @@ function App() {
         >
           <img src={logoSvg} className="w-8 mr-4" />
           无忧相机水印
+        </div>
+
+        <div className="my-0 mx-auto">
+          {!sizeInfo.isSupport ? null : sizeInfo.loading ? (
+            <Skeleton className="w-[100px] h-[20px] rounded-full" />
+          ) : (
+            <div>
+              <div className="mb-2 flex justify-between text-xs">
+                <span>网站缓存占用：{calcSize.used}MB</span>
+                <span className="inline-block ml-4">
+                  占用率：{calcSize.process}%
+                </span>
+              </div>
+              <Progress value={(sizeInfo.used / sizeInfo.quota) * 100} />
+            </div>
+          )}
         </div>
         <Icon
           icon="mdi:github"

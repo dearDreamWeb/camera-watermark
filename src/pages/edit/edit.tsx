@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import EditComponentBlur from '@/components/editComponentBlur/editComponentBlur';
+import { getSomeDbEditInfo } from '@/db/utils';
 
 export type ExifBaseType =
   | 'FocalLength'
@@ -148,7 +149,7 @@ const Edit = () => {
     history.push('/');
     return null;
   }
-  const { editState = {} } = location.state;
+  const { id } = location.state as { id: string };
   const fileRef = useRef<HTMLInputElement>(null);
   const editRef = useRef<ForWardRefHandler>(null);
   const [imgInfo, setImgInfo] = useState<{
@@ -168,13 +169,19 @@ const Edit = () => {
     templateModeLocal.get() || 'classic'
   );
 
-  console.log('editState-----', editState);
+  console.log('id-----', id);
   useEffect(() => {
-    if (!editState.file) {
-      return;
-    }
-    setImgInfo(editState);
-  }, [editState]);
+    (async () => {
+      if (!id) {
+        return;
+      }
+      const res = await getSomeDbEditInfo([id]);
+      if (!res[0].file) {
+        return;
+      }
+      setImgInfo(res[0]);
+    })();
+  }, [id]);
 
   useEffect(() => {
     const data = localStorage.getItem('defaultParams');

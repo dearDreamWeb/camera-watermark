@@ -10,10 +10,11 @@ import 'react-image-lightbox/style.css'; // This only needs to be imported once 
 import { Button } from '@/components/ui/button';
 import Worker from '../../workers/index?worker';
 import { saveFile } from '@/utils';
-import { getDbEditInfo } from '@/db/utils';
+import { getDbEditInfo, getSomeDbEditInfo } from '@/db/utils';
 import loadingSystem from '@/components/loadingSystem/loadingSystem';
 import EditComponentBlur from '@/components/editComponentBlur/editComponentBlur';
 import { TemplateMode, templateModeLocal } from '../edit/edit';
+import { EditInfoTableItem } from '@/db/db';
 
 function EditList() {
   const location = useLocation<any>();
@@ -22,29 +23,29 @@ function EditList() {
     history.push('/');
     return null;
   }
-  const { listLen = 0 } = location.state;
-  const [list, setList] = useState([]);
+  const { ids = [] } = location.state;
+  const [list, setList] = useState<EditInfoTableItem[]>([]);
   const [previewList, setPreviewList] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [templateMode, setTemplateMode] = useState<TemplateMode>(
     templateModeLocal.get() || 'classic'
   );
-  const editRefs = new Array(listLen)
+  const editRefs = new Array(ids.length)
     .fill(1)
     .map(() => useRef<ForWardRefHandler>(null));
 
   useEffect(() => {
     (async () => {
       loadingSystem(true);
-      const list = await getDbEditInfo();
+      const list = await getSomeDbEditInfo(ids);
       setList(JSON.parse(JSON.stringify(list)));
       setPreviewList(new Array(list.length).fill(''));
     })();
-  }, [listLen]);
+  }, [ids]);
 
   const jumpToEdit = (index: number) => {
-    history.push('/edit', { editState: list[index] });
+    history.push('/edit', { id: list[index].id });
   };
 
   const downloadHandler = (ref: any, info: any) => {
