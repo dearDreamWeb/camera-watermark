@@ -11,15 +11,8 @@ import message from './components/message/message';
 import { Skeleton } from './components/ui/skeleton';
 import { Progress } from './components/ui/progress';
 import { calcSizeHandler } from './utils';
-import { db } from './db/db';
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogHeader,
-} from './components/ui/dialog';
-import { Button } from './components/ui/button';
-import EvaluateComponent from './components/evaluateComponent/evaluateComponent';
+import { openEvaluateComponent } from './components/evaluateComponent/evaluateComponent';
+import { openRefreshModal } from './components/refreshModal/refreshModal';
 
 const VERSION = 2;
 
@@ -31,7 +24,6 @@ function App() {
     isSupport: true,
     loading: false,
   });
-  const [openRefresh, setOpenRefresh] = useState(false);
 
   const calcIndexDbSize = async () => {
     setSizeInfo({ ...sizeInfo, loading: true });
@@ -70,45 +62,33 @@ function App() {
     };
   }, [sizeInfo]);
 
-  const dbCheck = async () => {
-    try {
-      await db.open();
-      if (!db.isOpen()) {
-        setOpenRefresh(true);
-      }
-    } catch (e) {
-      setOpenRefresh(true);
-      console.error(e);
-    }
-  };
-
-  const deleteDb = async () => {
-    await db.delete();
-    location.reload();
-  };
-
   useEffect(() => {
-    dbCheck();
-    window.addEventListener('beforeunload', (event) => {
-      event.returnValue = `由于照片存储占用磁盘内存较大，刷新或者关闭将清除照片在本网站的缓存。确定吗?`;
-      history.push('/');
-      clearDbEditInfo();
-    });
-    const versionStorage = localStorage.getItem('version');
-    if (Number(versionStorage) !== VERSION) {
-      if (versionStorage === null) {
-        localStorage.setItem('version', VERSION.toString());
-      } else {
-        message.info('系統更新，需要刷新一下').then(async () => {
-          localStorage.removeItem('defaultParams');
-          localStorage.setItem('version', VERSION.toString());
-          location.reload();
-        });
+    (async () => {
+      if (!(await openRefreshModal())) {
+        return;
       }
-      return;
-    }
-    calcIndexDbSize();
-    window.addEventListener('changeIndexDb', calcIndexDbSize);
+      window.addEventListener('beforeunload', (event) => {
+        event.returnValue = `由于照片存储占用磁盘内存较大，刷新或者关闭将清除照片在本网站的缓存。确定吗?`;
+        history.push('/');
+        clearDbEditInfo();
+      });
+      const versionStorage = localStorage.getItem('version');
+      if (Number(versionStorage) !== VERSION) {
+        if (versionStorage === null) {
+          localStorage.setItem('version', VERSION.toString());
+        } else {
+          message.info('系統更新，需要刷新一下').then(async () => {
+            localStorage.removeItem('defaultParams');
+            localStorage.setItem('version', VERSION.toString());
+            location.reload();
+          });
+        }
+        return;
+      }
+      openEvaluateComponent();
+      calcIndexDbSize();
+      window.addEventListener('changeIndexDb', calcIndexDbSize);
+    })();
     return () => {
       window.removeEventListener('changeIndexDb', calcIndexDbSize);
     };
@@ -157,18 +137,6 @@ function App() {
         style={{ zIndex: 51 }}
         className="fixed flex flex-col h-screen w-screen items-center left-0 top-4 pointer-events-none"
       ></div>
-      <Dialog open={openRefresh} onOpenChange={(value) => !value && deleteDb()}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>刷新页面</DialogTitle>
-          </DialogHeader>
-          <div>本地缓存启动失败，需要刷新页面自动清除缓存</div>
-          <div className="flex justify-end">
-            <Button onClick={deleteDb}>确定</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-      <EvaluateComponent />
     </div>
   );
 }
