@@ -144,41 +144,7 @@ function EditList() {
               item.exifInfo.noHasExif ? ' bg-yellow-200' : 'bg-white'
             }`}
           >
-            <div className="hidden">
-              {templateRender(item, index)}
-              {/* <EditComponent
-                file={item.file}
-                exifInfo={item.exifInfo}
-                imgUrl={item.imgUrl}
-                ref={editRefs[index]}
-                onPreviewImg={(imgData) => {
-                  setPreviewList((previewImgList: any) => {
-                    previewImgList[index] = imgData;
-                    const isOver = previewImgList.every((item: any) => !!item);
-                    if (isOver) {
-                      loadingSystem(false);
-                    }
-                    return JSON.parse(JSON.stringify(previewImgList));
-                  });
-                }}
-              />
-              <EditComponentBlur
-                file={item.file}
-                exifInfo={item.exifInfo}
-                imgUrl={item.imgUrl}
-                ref={editRefs[index]}
-                onPreviewImg={(imgData) => {
-                  setPreviewList((previewImgList: any) => {
-                    previewImgList[index] = imgData;
-                    const isOver = previewImgList.every((item: any) => !!item);
-                    if (isOver) {
-                      loadingSystem(false);
-                    }
-                    return JSON.parse(JSON.stringify(previewImgList));
-                  });
-                }}
-              /> */}
-            </div>
+            <div className="hidden">{templateRender(item, index)}</div>
             {previewList[index] && (
               <img src={previewList[index]} className="max-w-full max-h-full" />
             )}

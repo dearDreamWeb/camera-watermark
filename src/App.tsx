@@ -19,6 +19,7 @@ import {
   DialogHeader,
 } from './components/ui/dialog';
 import { Button } from './components/ui/button';
+import EvaluateComponent from './components/evaluateComponent/evaluateComponent';
 
 const VERSION = 2;
 
@@ -99,7 +100,7 @@ function App() {
         localStorage.setItem('version', VERSION.toString());
       } else {
         message.info('系統更新，需要刷新一下').then(async () => {
-          localStorage.clear();
+          localStorage.removeItem('defaultParams');
           localStorage.setItem('version', VERSION.toString());
           location.reload();
         });
@@ -167,6 +168,7 @@ function App() {
           </div>
         </DialogContent>
       </Dialog>
+      <EvaluateComponent />
     </div>
   );
 }

@@ -37,12 +37,16 @@
 <img width='500px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/202404022139230.png'/>
 
 ## 底部可进行自由编辑
+
 <img width='500px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_3.png'/>
 
 ## 新增背景模糊模板
+
+选择背景模糊模板：  
+<img height='430px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_6.png'/>
+效果：  
 <img width='500px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_4.png'/>
 <img height='430px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_5.png'/>
-
 
 # 🧰 功能
 
