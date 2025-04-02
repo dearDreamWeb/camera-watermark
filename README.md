@@ -44,6 +44,7 @@
 
 选择背景模糊模板：  
 <img height='430px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_6.png'/>
+
 效果：  
 <img width='500px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_4.png'/>
 <img height='430px' src='https://raw.githubusercontent.com/dearDreamWeb/picture/main/pic/example_5.png'/>
