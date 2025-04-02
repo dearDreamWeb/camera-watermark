@@ -31,7 +31,7 @@ import ReactDOM from 'react-dom/client';
 
 export interface BaseModal<T> {
   visible: boolean;
-  hidden: (value: T) => void;
+  hidden: (value?: T) => void;
 }
 
 class OpenModal {
@@ -59,7 +59,7 @@ class OpenModal {
         }
         return future;
       },
-      hidden(value: any) {
+      hidden(value?: any) {
         const dom = document.getElementById(modalId);
         const index = that.list.findIndex((item) => item.id === modalId);
         if (index > -1) {

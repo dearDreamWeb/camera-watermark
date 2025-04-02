@@ -19,9 +19,7 @@ import {
   DialogHeader,
 } from './components/ui/dialog';
 import { Button } from './components/ui/button';
-import EvaluateComponent, {
-  openEvaluateComponent,
-} from './components/evaluateComponent/evaluateComponent';
+import { openEvaluateComponent } from './components/evaluateComponent/evaluateComponent';
 
 const VERSION = 2;
 
@@ -171,7 +169,6 @@ function App() {
           </div>
         </DialogContent>
       </Dialog>
-      {/* <EvaluateComponent /> */}
     </div>
   );
 }

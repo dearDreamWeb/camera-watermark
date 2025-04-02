@@ -5,8 +5,21 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { DialogProps } from '@radix-ui/react-dialog';
 
-const Dialog = DialogPrimitive.Root;
+interface DiyDialogProps extends DialogProps {
+  hidden?: () => void;
+}
+
+const Dialog = function (props: DiyDialogProps) {
+  const onChange = (value: boolean) => {
+    if (!value) {
+      props?.hidden?.();
+    }
+    props?.onOpenChange?.(value);
+  };
+  return <DialogPrimitive.Root {...props} onOpenChange={onChange} />;
+};
 
 const DialogTrigger = DialogPrimitive.Trigger;
 

@@ -11,46 +11,27 @@ const EvaluateComponent = (props: BaseModal<number>) => {
   const { hidden } = props;
   const [visible, setVisible] = useState(true);
 
-  // useEffect(() => {
-  //   if (isStarLocal.get()) {
-  //     return;
-  //   }
-  //   const value = visitCountLocal.get() || 0;
-  //   console.log('visitCountLocal', value);
-  //   if (value > 0 && (value === 1 || value % 5 === 0)) {
-  //     setVisible(true);
-  //   }
-  //   visitCountLocal.set(value + 1);
-  // }, []);
-
   const alreadyStar = () => {
     isStarLocal.set(true);
-    hidden(1);
     setVisible(false);
   };
 
   const goToStar = () => {
     window.open('https://github.com/dearDreamWeb/camera-watermark');
     isStarLocal.set(true);
-    hidden(2);
     setVisible(false);
   };
 
   const goToIdea = () => {
     window.open('https://github.com/dearDreamWeb/camera-watermark/issues');
-    hidden(3);
     setVisible(false);
   };
 
   return (
     <Dialog
       open={visible}
-      onOpenChange={(value) => {
-        if (!value) {
-          hidden(0);
-          setVisible(false);
-        }
-      }}
+      hidden={hidden}
+      onOpenChange={(value) => !value && setVisible(false)}
     >
       <DialogContent>
         <DialogHeader>
