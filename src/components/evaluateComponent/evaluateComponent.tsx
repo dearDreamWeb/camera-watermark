@@ -7,7 +7,7 @@ import { BaseModal, openModal } from '@/utils/functionModal';
 const visitCountLocal = createLocal<number>('visitCount');
 const isStarLocal = createLocal<boolean>('isStar');
 
-const EvaluateComponent = (props: BaseModal<number>) => {
+const EvaluateComponent = (props: BaseModal<null>) => {
   const { hidden } = props;
   const [visible, setVisible] = useState(true);
 
