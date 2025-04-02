@@ -19,7 +19,9 @@ import {
   DialogHeader,
 } from './components/ui/dialog';
 import { Button } from './components/ui/button';
-import EvaluateComponent from './components/evaluateComponent/evaluateComponent';
+import EvaluateComponent, {
+  openEvaluateComponent,
+} from './components/evaluateComponent/evaluateComponent';
 
 const VERSION = 2;
 
@@ -107,6 +109,7 @@ function App() {
       }
       return;
     }
+    openEvaluateComponent();
     calcIndexDbSize();
     window.addEventListener('changeIndexDb', calcIndexDbSize);
     return () => {
@@ -168,7 +171,7 @@ function App() {
           </div>
         </DialogContent>
       </Dialog>
-      <EvaluateComponent />
+      {/* <EvaluateComponent /> */}
     </div>
   );
 }
