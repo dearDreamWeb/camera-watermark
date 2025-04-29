@@ -38,8 +38,8 @@ function App() {
         };
         setSizeInfo({
           ...sizeInfo,
-          quota,
-          used: usageDetails?.indexedDB || usage || 0,
+          quota: Number(quota),
+          used: Number(usageDetails?.indexedDB || usage || 0),
           loading: false,
           isSupport: true,
         });
@@ -55,6 +55,7 @@ function App() {
     if (!sizeInfo.isSupport) {
       return { used: 0, quota: 0, process: 0 };
     }
+
     return {
       used: calcSizeHandler(sizeInfo.used / Math.pow(1024, 2)),
       quota: calcSizeHandler(sizeInfo.quota / Math.pow(1024, 2)),
