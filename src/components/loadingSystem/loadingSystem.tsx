@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Icon } from '@iconify-icon/react';
 
-const loadingSystem = (visible = false) => {
+const loadingSystem = (visible = false, text?: React.ReactNode) => {
   const loadingFatherDom = document.querySelector('#loadingWrap');
   if (visible) {
     if (loadingFatherDom) {
@@ -18,7 +18,7 @@ const loadingSystem = (visible = false) => {
           icon="line-md:loading-twotone-loop"
           className=" text-3xl text-white"
         ></Icon>
-        <div className="text-white mt-4">加载中</div>
+        <div className="text-white mt-4">{text || '加载中'}</div>
       </div>
     );
   } else {

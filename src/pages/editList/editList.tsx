@@ -35,6 +35,20 @@ function EditList() {
     .fill(1)
     .map(() => useRef<ForWardRefHandler>(null));
 
+  // 创建 Worker 池
+  const workerPool = useRef(
+    Array(1)
+      .fill(null)
+      .map(() => new Worker())
+  );
+
+  // 组件卸载时清理 Worker 池
+  useEffect(() => {
+    return () => {
+      workerPool.current.forEach((worker) => worker.terminate());
+    };
+  }, []);
+
   useEffect(() => {
     (async () => {
       loadingSystem(true);
@@ -48,21 +62,38 @@ function EditList() {
     history.push('/edit', { id: list[index].id });
   };
 
-  const downloadHandler = (ref: any, info: any) => {
-    return new Promise(async (resolve) => {
-      const downloadImageData = await ref.current?.exportImageUrl({})!;
+  const downloadHandler = async (ref: any, info: any) => {
+    const downloadImageData = await ref.current?.exportImageUrl({})!;
 
-      const worker = new Worker();
+    return new Promise((resolve) => {
+      const worker = workerPool.current.pop() || new Worker();
       worker.postMessage({
         imageData: downloadImageData,
       });
       worker.onmessage = (event) => {
         const { blob } = event.data;
         saveFile(blob, `${info.filename}_${+new Date()}.png`);
-        worker.terminate();
+        workerPool.current.push(worker); // 将 Worker 放回池中
         resolve(null);
       };
     });
+  };
+
+  const handleBatchDownload = async () => {
+    loadingSystem(true, '下载中');
+    try {
+      const batchSize = 1;
+      console.time('test');
+      for (let i = 0; i < list.length; i += batchSize) {
+        const batch = list.slice(i, i + batchSize);
+        await Promise.all(
+          batch.map((item, index) => downloadHandler(editRefs[i + index], item))
+        );
+      }
+      console.timeEnd('test');
+    } finally {
+      loadingSystem(false);
+    }
   };
 
   /**
@@ -126,15 +157,7 @@ function EditList() {
             背景色为<span>黄色</span>代表无exif信息，采用默认值
           </div>
         </div>
-        <Button
-          onClick={async () => {
-            for (let i = 0; i < editRefs.length; i++) {
-              await downloadHandler(editRefs[i], list[i]);
-            }
-          }}
-        >
-          批量下载
-        </Button>
+        <Button onClick={handleBatchDownload}>批量下载</Button>
       </div>
       <div className="flex flex-wrap">
         {list.map((item: any, index: number) => (

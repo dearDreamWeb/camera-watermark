@@ -70,7 +70,7 @@
 # 本地开发
 
 ```
-node >= 16.18.0
+node >= 18
 yarn 安装依赖
 yarn dev 启动项目
 yarn build 打包
