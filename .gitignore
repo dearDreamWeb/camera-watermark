@@ -20,4 +20,6 @@ dist-ssr
 *.sln
 *.sw?
 
+.eslintcache
+
 stats.html

@@ -71,9 +71,10 @@
 
 ```
 node >= 18
-yarn 安装依赖
-yarn dev 启动项目
-yarn build 打包
+pnpm >= 10
+pnpm i 安装依赖
+pnpm run dev 启动项目
+pnpm run build 打包
 ```
 
 # 🔨 技术栈
