@@ -38,6 +38,6 @@ FROM nginx-base
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # 暴露端口（Nginx默认80）
-EXPOSE 80
+EXPOSE 80 8088
 
 # 使用基础镜像默认CMD启动Nginx
