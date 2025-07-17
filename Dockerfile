@@ -28,6 +28,9 @@ FROM nginx:1.25.1-alpine AS nginx-base
 RUN rm -rf /etc/nginx/conf.d/* && \
     rm -rf /usr/share/nginx/html/*
 
+# 声明监听的端口（8089用于服务，80保留给Nginx）
+EXPOSE 80 8089
+
 # 复制自定义Nginx配置
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
@@ -36,8 +39,3 @@ FROM nginx-base
 
 # 从构建阶段复制静态文件
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# 暴露端口（Nginx默认80）
-EXPOSE 80 8088
-
-# 使用基础镜像默认CMD启动Nginx
