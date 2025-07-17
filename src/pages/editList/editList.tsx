@@ -74,6 +74,7 @@ function EditList() {
         const { blob } = event.data;
         saveFile(blob, `${info.filename}_${+new Date()}.png`);
         workerPool.current.push(worker); // 将 Worker 放回池中
+        URL.revokeObjectURL(downloadImageData);
         resolve(null);
       };
     });

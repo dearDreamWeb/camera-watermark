@@ -10,7 +10,7 @@ export const addDbEditInfo = async (
   const now = dayjs().toDate();
   const ids: string[] = [];
   const newList = list.map((item) => {
-    const _id = Math.random().toString(36).slice(2);
+    const _id = Date.now().toString(36) + Math.random().toString(36).slice(2);
     ids.push(_id);
     return {
       ...item,
