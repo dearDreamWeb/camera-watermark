@@ -1,6 +1,6 @@
 /* eslint-disable no-async-promise-executor */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import EditComponent, {
   ForWardRefHandler,
 } from '@/components/editComponent/editComponent';
@@ -17,10 +17,10 @@ import { TemplateMode, templateModeLocal } from '../edit/edit';
 import { EditInfoTableItem } from '@/db/db';
 
 function EditList() {
-  const location = useLocation<any>();
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   if (!location.state) {
-    history.push('/');
+    navigate('/');
     return null;
   }
   const { ids = [] } = location.state;
@@ -59,7 +59,7 @@ function EditList() {
   }, [ids]);
 
   const jumpToEdit = (index: number) => {
-    history.push('/edit', { id: list[index].id });
+    navigate('/edit', { state: { id: list[index].id } });
   };
 
   const downloadHandler = async (ref: any, info: any) => {

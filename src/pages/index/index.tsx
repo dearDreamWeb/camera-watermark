@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Worker from '../../workers/index?worker';
 import message from '@/components/message/message';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import logoSvg from '/vite.svg';
 import { Icon } from '@iconify-icon/react';
 import Lightbox from 'react-image-lightbox';
@@ -125,7 +125,7 @@ const exampleList = [
 ];
 
 const Index = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const fileSingleRef = useRef<HTMLInputElement>(null);
   const editRef = useRef<ForWardRefHandler>(null);
@@ -192,9 +192,9 @@ const Index = () => {
     const ids = await addDbEditInfo(list as any[]);
     loadingSystem(false);
     if (type === 'multiple') {
-      history.push('/editList', { ids });
+      navigate('/editList', { state: { ids } });
     } else {
-      history.push('/edit', { id: ids[0] });
+      navigate('/edit', { state: { id: ids[0] } });
     }
   };
 
