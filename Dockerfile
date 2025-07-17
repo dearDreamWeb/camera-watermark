@@ -6,7 +6,8 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && \
     pnpm config set registry https://registry.npmmirror.com && \
-    pnpm config set store-dir ~/.pnpm-store
+    pnpm config set store-dir /root/.pnpm-store && \
+    mkdir -p /root/.pnpm-store && chmod -R 777 /root/.pnpm-store
 
 WORKDIR /app
 
@@ -14,7 +15,7 @@ WORKDIR /app
 COPY pnpm-lock.yaml package.json ./
 RUN --mount=type=cache,id=pnpm,target=/root/.pnpm-store \
     pnpm fetch --prod && \
-    pnpm install --frozen-lockfile --offline
+    pnpm install --frozen-lockfile
 
 # 复制源码并构建
 COPY . .
