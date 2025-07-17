@@ -57,6 +57,11 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       initAligningGuidelines(fabricLogoCanvas);
       initCenteringGuidelines(fabricLogoCanvas);
       downloadCanvas.current = fabricDownloadCanvas;
+
+      return () => {
+        fabricCanvas.clear();
+        fabricLogoCanvas.clear();
+      };
     }, []);
 
     const initCanvas = async () => {
