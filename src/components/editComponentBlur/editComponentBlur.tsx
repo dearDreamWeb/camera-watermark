@@ -383,17 +383,31 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
 
       downloadCanvas.current?.renderAll();
       // debugger;
-      const imageData = downloadCanvas.current?.toDataURL({
-        format: 'png',
-        // 质量
-        quality: 1,
-        // 分辨率倍数
-        multiplier: params.multiplier
-          ? params.multiplier
-          : Math.max(mainCanvasObjects[0].width! / MAXWIDTH, 1),
-      })!;
+      // const imageData = downloadCanvas.current?.toDataURL({
+      //   format: 'png',
+      //   // 质量
+      //   quality: 1,
+      //   // 分辨率倍数
+      //   multiplier: params.multiplier
+      //     ? params.multiplier
+      //     : Math.max(mainCanvasObjects[0].width! / MAXWIDTH, 1),
+      // })!;
 
-      return imageData;
+      // return imageData;
+      return new Promise((resolve) => {
+        const canvasEl = downloadCanvas.current!.toCanvasElement(
+          params.multiplier
+            ? params.multiplier
+            : Math.max(mainCanvasObjects[0].width! / MAXWIDTH, 1)
+        );
+        canvasEl.toBlob(
+          (blob) => {
+            resolve(URL.createObjectURL(blob!));
+          },
+          'image/png',
+          1.0
+        );
+      });
     };
 
     return (

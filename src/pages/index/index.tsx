@@ -205,6 +205,7 @@ const Index = () => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async function (e) {
+        let imgUrl = URL.createObjectURL(file);
         try {
           let exifs = await exifr.parse(file, true);
           // console.log('---exifs', exifs);
@@ -231,14 +232,14 @@ const Index = () => {
                   ...(defaultParams.current?.[0]?.info || {}),
                   noHasExif: true,
                 },
-            imgUrl: e.target?.result as string,
+            imgUrl,
           });
         } catch (error) {
           console.log('error:', error);
           resolve({
             file,
             exifInfo: null,
-            imgUrl: e.target?.result as string,
+            imgUrl,
             filename: file.name,
           });
         }
