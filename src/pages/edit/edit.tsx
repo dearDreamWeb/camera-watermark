@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Worker from '../../workers/index?worker';
 import message from '@/components/message/message';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Select,
   SelectContent,
@@ -143,10 +143,10 @@ const templateModeList: TemplateModeListItem[] = [
 ];
 
 const Edit = () => {
-  const location = useLocation<any>();
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   if (!location.state) {
-    history.push('/');
+    navigate('/');
     return null;
   }
   const { id } = location.state as { id: string };

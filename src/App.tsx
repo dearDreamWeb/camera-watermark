@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import styles from './App.module.less';
 import routes from '../config/routes';
-import { renderRoutes } from 'react-router-config';
 import logoSvg from '/vite.svg';
-import { useHistory } from 'react-router-dom';
+import { useNavigate, Route, Routes } from 'react-router-dom';
 import { clearDbEditInfo } from './db/utils';
 import { Icon } from '@iconify-icon/react';
 import DefaultValue from './components/defaultValue/defaultValue';
@@ -17,7 +16,7 @@ import { openRefreshModal } from './components/refreshModal/refreshModal';
 const VERSION = 2;
 
 function App() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [sizeInfo, setSizeInfo] = useState({
     quota: 0,
     used: 0,
@@ -70,7 +69,7 @@ function App() {
       }
       window.addEventListener('beforeunload', (event) => {
         event.returnValue = `由于照片存储占用磁盘内存较大，刷新或者关闭将清除照片在本网站的缓存。确定吗?`;
-        history.push('/');
+        navigate('/');
         clearDbEditInfo();
       });
       const versionStorage = localStorage.getItem('version');
@@ -101,7 +100,7 @@ function App() {
         <div
           className="flex items-center font-bold cursor-pointer"
           onClick={() => {
-            history.push('/');
+            navigate('/');
           }}
         >
           <img src={logoSvg} className="w-8 mr-4" />
@@ -131,7 +130,16 @@ function App() {
           }}
         ></Icon>
       </div>
-      {renderRoutes(routes)}
+      <Routes>
+        {routes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={route.element}
+          ></Route>
+        ))}
+      </Routes>
+
       <DefaultValue />
       <div
         id="message-wrapper"
