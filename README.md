@@ -77,6 +77,39 @@ pnpm run dev 启动项目
 pnpm run build 打包
 ```
 
+# Docker 部署
+
+拉取代码
+
+```
+<!-- 拉取的是gitee上的仓库代码，国内服务器会快一些 -->
+git clone https://gitee.com/flyingwxb/camera-watermark.git
+
+<!-- 如果服务器是国外的，用github仓库代码拉取 -->
+git clone https://github.com/dearDreamWeb/camera-watermark.git
+```
+
+进入文件夹
+
+```
+cd camera-watermark
+```
+
+docker 构建镜像
+
+```
+docker build -t camera-watermark .
+```
+
+docker 运行容器（默认是 8088 端口）
+
+```
+如果想改为其他端口，如想改成9999端口，示例：9999:8088
+docker run -d -p 8088:8088 --name camera-watermark camera-watermark
+```
+
+访问 8088 端口即可
+
 # 🔨 技术栈
 
 - fabric
