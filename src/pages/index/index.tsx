@@ -104,22 +104,22 @@ const descList = [
 const exampleList = [
   {
     key: '0',
-    url: 'https://resource.blogwxb.cn/cameraWatermark/example_1.png',
+    url: 'https://blogwxb.oss-cn-hangzhou.aliyuncs.com/cameraWatermark/example_1.png',
     styles: { width: '420px', height: '301px' },
   },
   {
     key: '1',
-    url: 'https://resource.blogwxb.cn/cameraWatermark/example_2.png',
+    url: 'https://blogwxb.oss-cn-hangzhou.aliyuncs.com/cameraWatermark/example_2.png',
     styles: { height: '301px' },
   },
   {
     key: '2',
-    url: 'https://resource.blogwxb.cn/cameraWatermark/example_4.png',
+    url: 'https://blogwxb.oss-cn-hangzhou.aliyuncs.com/cameraWatermark/example_4.png',
     styles: { width: '420px', height: '301px' },
   },
   {
     key: '3',
-    url: 'https://resource.blogwxb.cn/cameraWatermark/example_5.png',
+    url: 'https://blogwxb.oss-cn-hangzhou.aliyuncs.com/cameraWatermark/example_5.png',
     styles: { height: '301px' },
   },
 ];
