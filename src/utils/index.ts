@@ -13,6 +13,24 @@ export const loadImage = async (url: string): Promise<fabric.Image> => {
   });
 };
 
+/**
+ * 画布为适配预览会缩小图片；导出时用该倍数可把整幅导出画布放大到接近原图像素。
+ * 旧逻辑用 width/MAXWIDTH 会在竖图（宽高比小于 1）时明显偏小，因为此时限高而非限宽。
+ */
+export const getCanvasExportMultiplier = (objects: fabric.Object[]): number => {
+  let mult = 1;
+  for (const obj of objects) {
+    if (obj.type !== 'image') continue;
+    const img = obj as fabric.Image;
+    const dw = img.getScaledWidth() || 1;
+    const dh = img.getScaledHeight() || 1;
+    const iw = img.width || 1;
+    const ih = img.height || 1;
+    mult = Math.max(mult, iw / dw, ih / dh);
+  }
+  return mult;
+};
+
 /**克隆 */
 export const clonePromise = (fabricObject: fabric.Object) => {
   return new Promise((resolve) => {

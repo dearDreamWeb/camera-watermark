@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react';
 import { fabric } from 'fabric';
-import { clonePromise, loadImage } from '@/utils';
+import { clonePromise, getCanvasExportMultiplier, loadImage } from '@/utils';
 import {
   initAligningGuidelines,
   initCenteringGuidelines,
@@ -401,9 +401,7 @@ const EditComponentBlur = forwardRef<ForWardRefHandler, EditComponentProps>(
       // return imageData;
       return new Promise((resolve) => {
         const canvasEl = downloadCanvas.current!.toCanvasElement(
-          params.multiplier
-            ? params.multiplier
-            : Math.max(mainCanvasObjects[0].width! / MAXWIDTH, 1)
+          params.multiplier ?? getCanvasExportMultiplier(mainCanvasObjects)
         );
         canvasEl.toBlob(
           (blob) => {
